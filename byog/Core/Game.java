@@ -2,12 +2,27 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
+
+import java.util.Random;
 
 public class Game {
+    /* Create a pseudorandom world */
+    private static final long SEED = 2873125;
+    private static final Random RANDOM = new Random(SEED);
+
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
+
+    public static void fillEmpty(TETile[][] world) {
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
+                world[x][y] = Tileset.NOTHING;
+            }
+        }
+    }
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
