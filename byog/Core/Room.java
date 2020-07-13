@@ -2,161 +2,128 @@ package byog.Core;
 
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
-import byog.lab5.HexWorld;
 
 import java.util.Random;
 
 public class Room {
+
     private int width;
     private int height;
-    private Position[] room;
-    private static final long SEED = 2873124;
-    private static final Random RANDOM = new Random(SEED);
+    public Position botLeftCorn;
+    public Position botRightCorn;
+    public Position uppLeftCorn;
+    public Position uppRightCorn;
+    public Door entranceDoor;
+    public Door exitDoor;
+    private Position doorPos;
+    private static final long SEED =113;
+    public static final Random RANDOM = new Random(SEED);
 
+    public Room() {
 
-
-    public static int getRandomNum(int min, int max) {
-        Random random = new Random();
-        int randomNumber = random.nextInt(max + 1 - min) + min;
-        return randomNumber;
     }
 
-    public static void drawWalls(TETile[][] world, int width, int height, Position p){
-        for (int x = 0; x < width; x += 1) {
+    public static Room makeFirstRoom(TETile[][] world) {
+        Room r = new Room();
+        makeShape(r);
+        r.botLeftCorn = new Position(25, 25);
+        r.botRightCorn = new Position(r.botLeftCorn.x + r.width - 1, r.botLeftCorn.y);
+        r.uppLeftCorn = new Position(r.botLeftCorn.x, r.botLeftCorn.y + r.height - 1);
+        r.uppRightCorn = new Position(r.botRightCorn.x, r.uppLeftCorn.y);
+        r.exitDoor = makeDoor(r);
+        Position.checkOverlap(world, r);
+        return r;
+    }
+
+    public static Room makeRoom(TETile[][] world, Door entranceDoor) {
+        Room r = new Room();
+        makeShape(r);
+        int xOffset = RandomUtils.uniform(RANDOM, r.width/2);
+        int yOffset = RandomUtils.uniform(RANDOM, r.height/2);
+        if (entranceDoor.orientation.equals("Bottom")) {
+            r.uppLeftCorn = new Position (entranceDoor.doorP.x - xOffset, entranceDoor.doorP.y - 1);
+            r.uppRightCorn = new Position (r.uppLeftCorn.x + r.width - 1, r.uppLeftCorn.y);
+            r.botLeftCorn = new Position (r.uppLeftCorn.x, r.uppLeftCorn.y - r.height);
+            r.botRightCorn = new Position (r.uppRightCorn.x, r.botLeftCorn.y);
+            r.exitDoor = makeDoor(r);
+            while (r.exitDoor.doorP == new Position(entranceDoor.doorP.x, entranceDoor.doorP.y - 1)) {
+                r.exitDoor = makeDoor(r);
+            }
+        }
+        entranceDoor.connected = true;
+        return r;
+    }
+
+    public static void drawRoom(TETile[][] world, Room room) {
+        Position p = room.botLeftCorn;
+        for (int x = 0; x < room.width; x += 1) {
             int xCoord = p.x + x;
-            for (int y = 0; y < height; y += 1) {
+            for (int y = 0; y < room.height; y += 1) {
                 int yCoord = p.y + y;
-                if ((xCoord == p.x) || (xCoord == (p.x + width - 1)) ||
-                        (yCoord == p.y) || (yCoord == (p.y + height - 1))) {
+                if ((xCoord == p.x) || (xCoord == (p.x + room.width - 1)) ||
+                        (yCoord == p.y) || (yCoord == (p.y + room.height - 1))) {
                     world[xCoord][yCoord] = Tileset.WALL;
                 } else {
                     world[xCoord][yCoord] = Tileset.FLOOR;
                 }
             }
         }
-    }
-
-    public static int hexRowWidth(int s, int i) {
-        int effectiveI = i;
-        if (i >= s) {
-            effectiveI = 2 * s - 1 - effectiveI;
+        if (room.entranceDoor != null) {
+            world[room.entranceDoor.doorP.x][room.entranceDoor.doorP.y] = Tileset.FLOOR;
         }
-        return s + 2 * effectiveI;
-    }
-
-    public static int hexRowOffset(int s, int i) {
-        int effectiveI = i;
-        if (i >= s) {
-            effectiveI = 2 * s - 1 - effectiveI;
+        if (room.exitDoor != null) {
+            world[room.exitDoor.doorP.x][room.exitDoor.doorP.y] = Tileset.FLOOR;
         }
-        return -effectiveI;
-    }
-
-
-    public static void addRow(TETile[][] world, Position p, int width) {
-        for (int x = 0; x < width; x += 1) {
-            int xCoord = p.x + x;
-            int yCoord = p.y;
-            if (xCoord == p.x || xCoord == p.x + width - 1) {
-                world[xCoord][yCoord] = Tileset.WALL;
-            } else {
-                world[xCoord][yCoord] = Tileset.FLOOR;
-            }
-        }
-    }
-
-    public static void addHexagon(TETile[][] world, Position p, int s) {
-        if (s < 2) {
-            throw new IllegalArgumentException("Hexagon must be at least size 2.");
-        }
-        for (int y = 0; y < 2 * s; y += 1) {
-            int thisRowY = p.y + y;
-            int xRowStart = p.x + hexRowOffset(s, y);
-            Position rowStartP = new Position(xRowStart, thisRowY);
-
-            int rowWidth = hexRowWidth(s, y);
-            if (thisRowY == p.y || thisRowY == p.y + (2 * s) - 1) {
-                for (int x = 0; x < rowWidth; x += 1) {
-                    int xCoord = p.x + x;
-                    world[xCoord][thisRowY] = Tileset.WALL;
-                }
-            } else {
-                addRow(world, rowStartP, rowWidth);
-            }
-        }
-    }
-
-    public static void makeSquareRoom(TETile[][] world, Position p) {
-        int width = getRandomNum(3, 10);
-        int height = width;
-        drawWalls(world, width, height, p);
-    }
-
-    public static void makeRectangleRoom(TETile[][] world, Position p) {
-        int width = getRandomNum(3, 10);
-        int height = getRandomNum(3, 10);
-        drawWalls(world, width, height, p);
-    }
-
-    public static void makeHexagonRoom(TETile[][] world, Position p) {
-        int size = getRandomNum(2, 4);
-        addHexagon(world, p, size);
-    }
-
-    public static void makeHallway(){
 
     }
 
-    public static void makeHorizontalHallway(TETile[][] world, Position p){
-        int width = getRandomNum(1, 10);
-        int height = 3;
-        for (int x = 0; x < width; x += 1) {
-            int xCoord = p.x + x;
-            for (int y = 0; y < height; y += 1) {
-                int yCoord = p.y + y;
-                if ((yCoord == p.y) || (yCoord == (p.y + height - 1))) {
-                    world[xCoord][yCoord] = Tileset.WALL;
-                } else {
-                    world[xCoord][yCoord] = Tileset.FLOOR;
-                }
-            }
-        }
-    }
-
-    public static void makeVerticalHallway(TETile[][] world, Position p) {
-        int height = getRandomNum(1, 10);
-        int width = 3;
-        for (int x = 0; x < width; x += 1) {
-            int xCoord = p.x + x;
-            for (int y = 0; y < height; y += 1) {
-                int yCoord = p.y + y;
-                if ((xCoord == p.x) || (xCoord == (p.x + width - 1))) {
-                    world[xCoord][yCoord] = Tileset.WALL;
-                } else {
-                    world[xCoord][yCoord] = Tileset.FLOOR;
-                }
-            }
-        }
-    }
-
-    public static void makeRandomRoom(TETile[][] world, Position p) {
-        int tileNum = RANDOM.nextInt(3);
-        switch (tileNum) {
-            case 0: makeSquareRoom(world, p);
-            case 1: makeRectangleRoom(world, p);
-            case 2: makeHexagonRoom(world, p);
-            default: return;
-        }
-    }
-
-    public static void makeRandomHallway(TETile[][] world, Position p) {
+    public static void makeShape(Room room) {
         int tileNum = RANDOM.nextInt(2);
-        switch (tileNum) {
-            case 0: makeHorizontalHallway(world, p);
-            case 1: makeVerticalHallway(world, p);
-            default: return;
+        /* make square or rectangle shape*/
+        if (tileNum == 0) {
+            room.width = RandomUtils.uniform(RANDOM, 4, 8);
+            room.height = room.width;
+        } else {
+            room.width = RandomUtils.uniform(RANDOM, 4, 8);
+            room.height = RandomUtils.uniform(RANDOM, 4, 8);
         }
     }
 
 
+    public static class Door {
+        public Position doorP;
+        public String orientation;
+        public boolean connected;
+        public Door(String o, Position p) {
+            doorP = p;
+            orientation = o;
+            connected = false;
+        }
+    }
+
+
+    public static Door makeDoor(Room room){
+        int tileNum = RANDOM.nextInt(4);
+        switch (tileNum) {
+            case 0:
+                int x0 = RandomUtils.uniform(RANDOM, room.botLeftCorn.x + 1, room.botRightCorn.x - 1);
+                int y0 = room.botLeftCorn.y;
+                return new Door("Bottom", new Position(x0, y0));
+            case 1:
+                int x1= RandomUtils.uniform(RANDOM, room.botLeftCorn.x + 1, room.botRightCorn.x - 1);
+                int y1 = room.uppLeftCorn.y;
+                return new Door("Top", new Position(x1, y1));
+            case 2:
+                int x2 = room.botLeftCorn.x;
+                int y2 = RandomUtils.uniform(RANDOM, room.botLeftCorn.y + 1, room.uppLeftCorn.y - 1);
+                return new Door("Left", new Position(x2, y2));
+            case 3:
+                int x3 = room.botRightCorn.x;
+                int y3 = RandomUtils.uniform(RANDOM, room.botLeftCorn.y + 1, room.uppLeftCorn.y - 1);
+                return new Door("Right", new Position(x3,y3));
+            default:
+                return null;
+            }
+        }
 }
+

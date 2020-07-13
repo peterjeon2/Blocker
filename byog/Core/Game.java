@@ -13,12 +13,10 @@ public class Game {
 
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
 
     public static void fillEmpty(TETile[][] world) {
-        for (int x = 0; x < WIDTH; x += 1) {
-            for (int y = 0; y < HEIGHT; y += 1) {
+        for (int x = 0; x < test.WIDTH; x += 1) {
+            for (int y = 0; y < test.HEIGHT; y += 1) {
                 world[x][y] = Tileset.NOTHING;
             }
         }
