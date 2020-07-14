@@ -16,10 +16,9 @@ public class Hallway extends Room {
         entranceDoor = someDoor;
     }
 
-
     public static Hallway makeHallway(TETile[][] world, Door entranceDoor) {
-        Hallway h = new Hallway(entranceDoor);
         /* Connect a Room to a Hallway */
+        Hallway h = new Hallway(entranceDoor);
         try {
             if (entranceDoor.orientation.equals("Bottom")) {
                 makeDownHallway(h, entranceDoor);
@@ -61,9 +60,7 @@ public class Hallway extends Room {
         h.height = 3;
         Position p = entranceDoor.doorP;
         h.botLeftCorn = new Position (p.x - h.width, p.y - 1);
-        h.botRightCorn = new Position (p.x - 1,p.y - 1);
-        h.uppLeftCorn = new Position (p.x - h.width, p.y + 1);
-        h.uppRightCorn = new Position (p.x - 1, p.y + 1);
+        h.setCorners();
         h.exitDoor = new Door("corLeft", new Position(h.botLeftCorn.x, p.y));
     }
 
@@ -73,9 +70,7 @@ public class Hallway extends Room {
         h.height = 3;
         Position p = entranceDoor.doorP;
         h.botLeftCorn = new Position (p.x + 1, p.y - 1);
-        h.botRightCorn = new Position (p.x + h.width, p.y - 1);
-        h.uppLeftCorn = new Position (p.x + 1,p.y + 1);
-        h.uppRightCorn = new Position (p.x + h.width, p.y + 1);
+        h.setCorners();
         h.exitDoor = new Door("corRight", new Position(h.botRightCorn.x, p.y));
     }
 
@@ -85,10 +80,15 @@ public class Hallway extends Room {
         h.height = RandomUtils.uniform(r, 2, 7);
         Position p = entranceDoor.doorP;
         h.botLeftCorn = new Position (p.x - 1, p.y - h.height);
-        h.botRightCorn = new Position (p.x + 1, p.y - h.height);
-        h.uppLeftCorn = new Position (p.x - 1, p.y - 1);
-        h.uppRightCorn = new Position (p.x + 1, p.y - 1);
-        h.exitDoor = new Door("corDown", new Position(p.x, h.botLeftCorn.y));
+        h.setCorners();
+        h.exitDoor = new Door("corBot", new Position(p.x, h.botLeftCorn.y));
+    }
+
+    public void setCorners() {
+        botRightCorn = new Position(botLeftCorn.x + width - 1, botLeftCorn.y);
+        uppLeftCorn = new Position(botLeftCorn.x, botLeftCorn.y + height - 1);
+        uppRightCorn = new Position(botRightCorn.x, uppLeftCorn.y);
+        middle = new Position(botLeftCorn.x + 1, botRightCorn.y + 1);
     }
 
     public static void makeUpHallway(Hallway h, Door entranceDoor) {
@@ -97,10 +97,9 @@ public class Hallway extends Room {
         h.height = RandomUtils.uniform(r, 2, 7);
         Position p = entranceDoor.doorP;
         h.botLeftCorn = new Position (p.x - 1, p.y + 1);
-        h.botRightCorn = new Position (p.x + 1, p.y + 1);
-        h.uppLeftCorn = new Position (p.x - 1,p.y + h.height);
-        h.uppRightCorn = new Position (p.x + 1, p.y + h.height);
-        h.exitDoor = new Door("corUp", new Position(p.x, h.uppLeftCorn.y));
+        h.setCorners();
+        h.exitDoor = new Door("corTop", new Position(p.x, h.uppLeftCorn.y));
+
 
     }
 
@@ -131,7 +130,6 @@ public class Hallway extends Room {
                     world[xCoord][yCoord] = Tileset.FLOOR;
                 }
             }
-
         }
     }
 
@@ -158,36 +156,28 @@ public class Hallway extends Room {
         Position p = entranceDoor.doorP;
         if (entranceDoor.orientation.equals("corLeft")) {
             h.botLeftCorn = new Position(p.x - h.width, p.y - 1);
-            h.botRightCorn = new Position(p.x - 1, p.y - 1);
-            h.uppLeftCorn = new Position(p.x - h.width, p.y + 1);
-            h.uppRightCorn = new Position(p.x - 1, p.y + 1);
+            h.setCorners();
             h.middle = new Position(p.x - 2, p.y);
             h.nextToMiddle = new Position(p.x - 1, p.y);
             h.exitDoor = new Door("Top", new Position(p.x - 2, p.y + 1));
         } else if (entranceDoor.orientation.equals("corRight")) {
             h.botLeftCorn = new Position(p.x + 1, p.y - 1);
-            h.botRightCorn = new Position(p.x + h.width, p.y - 1);
-            h.uppLeftCorn = new Position(p.x + 1, p.y + 1);
-            h.uppRightCorn = new Position(p.x + h.width, p.y + 1);
+            h.setCorners();
             h.middle = new Position(p.x + 2, p.y);
             h.nextToMiddle = new Position(p.x + 1, p.y);
             h.exitDoor = new Door("Bottom", new Position(p.x + 2, p.y - 1));
-        } else if (entranceDoor.orientation.equals("corDown")) {
+        } else if (entranceDoor.orientation.equals("corBot")) {
             h.botLeftCorn = new Position(p.x - 1, p.y - h.height);
-            h.botRightCorn = new Position(p.x + 1, p.y - h.height);
-            h.uppLeftCorn = new Position(p.x - 1, p.y - 1);
-            h.uppRightCorn = new Position(p.x + 1, p.y - 1);
+            h.setCorners();
             h.middle = new Position(p.x, p.y - 2);
             h.nextToMiddle = new Position(p.x, p.y - 1);
             h.exitDoor = new Door("Left", new Position(p.x - 1, p.y - 2));
         } else {
             h.botLeftCorn = new Position(p.x - 1, p.y + 1);
-            h.botRightCorn = new Position(p.x + 1, p.y + 1);
-            h.uppLeftCorn = new Position(p.x - 1, p.y + h.height);
-            h.uppRightCorn = new Position(p.x + 1, p.y + h.height);
+            h.setCorners();
             h.middle = new Position(p.x, p.y + 2);
             h.nextToMiddle = new Position(p.x, p.y + 1);
             h.exitDoor = new Door("Right", new Position(p.x + 1, p.y + 2));
         }
-        }
+    }
 }

@@ -19,7 +19,7 @@ public class Position {
             if (world[p.x][p.y] != Tileset.NOTHING) {
                 throw new RuntimeException("Room can't overlap with another room.");
             }
-            if (p.x < 10 || p.y <= 10 || p.x > test.WIDTH - 10 || p.y > test.HEIGHT - 10) {
+            if (p.x <= 5 || p.y <= 5 || p.x > test.WIDTH - 5 || p.y > test.HEIGHT - 5) {
                 throw new RuntimeException("Room can't be out of bounds");
             }
         }

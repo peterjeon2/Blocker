@@ -15,9 +15,30 @@ public class test {
         TETile[][] world = new TETile[WIDTH][HEIGHT];
         Game.fillEmpty(world);
         Room room = Room.makeFirstRoom(world);
-        Room.drawRoom(world, room);
+        room.drawRoom(world);
+        Hallway h = Hallway.makeHallway(world, room.exitDoor);
+        Hallway.drawHallway(world, h);
+        Hallway h2 = Hallway.makeHallway(world, h.exitDoor);
+        Hallway.drawHallway(world, h2);
+        Hallway h3 = Hallway.makeHallway(world, h2.exitDoor);
+        Hallway.drawHallway(world, h3);
+        Room room2 = Room.makeRoom(world, h3.exitDoor);
+        room2.drawRoom(world);
+        Hallway h4 = Hallway.makeHallway(world, room2.exitDoor);
+        Hallway.drawHallway(world, h4);
+        Hallway h5= Hallway.makeHallway(world, h4.exitDoor);
+        Hallway.drawHallway(world, h5);
+        Hallway h6 = Hallway.makeHallway(world, h5.exitDoor);
+        Hallway.drawHallway(world, h6);
 
 
+
+
+
+
+
+
+        /*
         int count = 0;
         int maxTries = 100;
         boolean cond = false;
@@ -37,7 +58,7 @@ public class test {
             }
             cond = false;
         }
-
+        */
         ter.renderFrame(world);
 
     }
