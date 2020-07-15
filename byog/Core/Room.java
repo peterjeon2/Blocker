@@ -3,6 +3,7 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class Room {
@@ -13,22 +14,49 @@ public class Room {
     public Position botRightCorn;
     public Position uppLeftCorn;
     public Position uppRightCorn;
-    public Door entranceDoor;
-    public Door exitDoor;
-    private Position doorPos;
-    private static final long SEED = 561343;
+    public Door door;
+    public static Room[] neighbors;
+    public static Room[] connected;
+    public int neighborCount;
+    private static final long SEED = 36711121;
     public static final Random RANDOM = new Random(SEED);
 
     public Room() {
+        neighbors = new Room[3];
+    }
+    /*
+    public static Room Expression(TETile[][] world, Room room){
+        int n = RandomUtils.uniform(RANDOM, 2);
+        if (n == 0) {
+            Room r = makeRoom(world, room.door);
+            room.drawRoom(world);
+            return r;
+        } else {
+            Hallway r = Hallway.makeHallway(world, room.door);
+            r.drawHallway(world);
+            return r;
+        }
+    }
+     */
 
+    public void addNeighbor(Room room) {
+        neighborCount = 0;
+        while (neighborCount < neighbors.length) {
+            this.neighbors[neighborCount] = room;
+            neighborCount ++;
+        }
     }
 
-    public static Room makeFirstRoom(TETile[][] world) {
+    public static Room[] getN() {
+        return neighbors;
+    }
+
+    public static Room makeRoom(TETile[][] world) {
         Room r = new Room();
         makeShape(r);
-        r.botLeftCorn = new Position(25, 25);
+        r.botLeftCorn = new Position(RandomUtils.uniform(RANDOM, 60), RandomUtils.uniform(RANDOM, 40));
         r.setCorners();
-        r.exitDoor = r.makeDoor();
+        r.door = r.makeDoor();
         Position.checkOverlap(world, r);
         return r;
     }
@@ -39,6 +67,34 @@ public class Room {
         uppRightCorn = new Position(botRightCorn.x, uppLeftCorn.y);
     }
 
+    public void addConnectPoint(Room neighborRoom, TETile[][] world) {
+        /*
+        if (Arrays.asList(connected).contains(this) == false && Arrays.asList(neighbors).contains(neighborRoom) == false) {
+
+         */
+            int posX = door.doorP.x;
+            int posY = neighborRoom.door.doorP.y;
+            if (door.doorP.x == neighborRoom.door.doorP.y) {
+                posX = neighborRoom.door.doorP.x;
+            }
+            Game.recordConnection(this);
+            Game.recordConnection(neighborRoom);
+            Hallway.drawCornerHallway(world, new Position(posX,posY));
+            Hallway.drawHorizontalHallway(world, new Position(posX, posY), neighborRoom.door.doorP);
+            Hallway.drawVerticalHallway(world, new Position(posX, posY), door.doorP);
+            world[posX][posY] = Tileset.WATER;
+
+            /*
+        } else {
+            return;
+        }
+             */
+    }
+
+
+
+
+    /*
     public static Room makeRoom(TETile[][] world, Door entranceDoor) {
         Room r = new Room();
         makeShape(r);
@@ -67,6 +123,8 @@ public class Room {
         return r;
     }
 
+     */
+
     public void drawRoom(TETile[][] world) {
         Position p = botLeftCorn;
         for (int x = 0; x < width; x += 1) {
@@ -81,13 +139,7 @@ public class Room {
                 }
             }
         }
-        if (entranceDoor != null) {
-            world[entranceDoor.doorP.x][entranceDoor.doorP.y] = Tileset.FLOOR;
-        }
-        if (exitDoor != null) {
-            world[exitDoor.doorP.x][exitDoor.doorP.y] = Tileset.FLOOR;
-        }
-
+        world[door.doorP.x][door.doorP.y] = Tileset.WATER;
     }
 
     public static void makeShape(Room room) {
@@ -102,7 +154,6 @@ public class Room {
         }
     }
 
-
     public static class Door {
         public Position doorP;
         public String orientation;
@@ -114,29 +165,9 @@ public class Room {
         }
     }
 
-
     public Door makeDoor(){
-        int tileNum = RANDOM.nextInt(4);
-        switch (tileNum) {
-            case 0:
-                int x0 = RandomUtils.uniform(RANDOM, botLeftCorn.x + 1, botRightCorn.x - 1);
-                int y0 = botLeftCorn.y;
-                return new Door("Bottom", new Position(x0, y0));
-            case 1:
-                int x1= RandomUtils.uniform(RANDOM, botLeftCorn.x + 1, botRightCorn.x - 1);
-                int y1 = uppLeftCorn.y;
-                return new Door("Top", new Position(x1, y1));
-            case 2:
-                int x2 = botLeftCorn.x;
-                int y2 = RandomUtils.uniform(RANDOM, botLeftCorn.y + 1, uppLeftCorn.y - 1);
-                return new Door("Left", new Position(x2, y2));
-            case 3:
-                int x3 = botRightCorn.x;
-                int y3 = RandomUtils.uniform(RANDOM, botLeftCorn.y + 1, uppLeftCorn.y - 1);
-                return new Door("Right", new Position(x3,y3));
-            default:
-                return null;
-            }
-        }
+        int x0 = botLeftCorn.x + RandomUtils.uniform(RANDOM, 1, width - 1);
+        int y0 = botLeftCorn.y + RandomUtils.uniform(RANDOM, 1, height - 1);
+        return new Door("Door", new Position(x0, y0));
+    }
 }
-
