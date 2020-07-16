@@ -2,172 +2,153 @@ package byog.Core;
 
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
-
-import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * This class provides methods that construct and draw randomly generated rooms in the world.
+ * The game class calls these methods to build out the world.
+ */
 public class Room {
-
     private int width;
     private int height;
-    public Position botLeftCorn;
-    public Position botRightCorn;
-    public Position uppLeftCorn;
-    public Position uppRightCorn;
-    public Door door;
-    public static Room[] neighbors;
-    public static Room[] connected;
-    public int neighborCount;
-    private static final long SEED = 36711121;
-    public static final Random RANDOM = new Random(SEED);
+    private Position botLeftCorn;
+    private Position botRightCorn;
+    private Position uppLeftCorn;
+    private Position uppRightCorn;
+    private Position[] corners;
+    private Door door;
+    private static Room[] neighbors;
+    private int neighborCount;
 
     public Room() {
         neighbors = new Room[3];
-    }
-    /*
-    public static Room Expression(TETile[][] world, Room room){
-        int n = RandomUtils.uniform(RANDOM, 2);
-        if (n == 0) {
-            Room r = makeRoom(world, room.door);
-            room.drawRoom(world);
-            return r;
-        } else {
-            Hallway r = Hallway.makeHallway(world, room.door);
-            r.drawHallway(world);
-            return r;
-        }
-    }
-     */
-
-    public void addNeighbor(Room room) {
         neighborCount = 0;
-        while (neighborCount < neighbors.length) {
-            this.neighbors[neighborCount] = room;
-            neighborCount ++;
+        corners = new Position[4];
+    }
+
+    public class Door {
+        private Position doorP;
+        public Door(Position p) {
+            doorP = p;
+        }
+        public Position getDoorP() {
+            return doorP;
         }
     }
 
-    public static Room[] getN() {
+    public Position getBotLeftCorn() {
+        return botLeftCorn;
+    }
+    public Position[] getCorners() {
+        return corners;
+    }
+
+    public Door getDoor() {
+        return door;
+    }
+
+    public Room[] getNeighbors() {
         return neighbors;
     }
 
-    public static Room makeRoom(TETile[][] world) {
+    public int getNeighborCount() {
+        return neighborCount;
+    }
+
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+
+    public void setDoor(Random random) {
+        /* Creates a door in a room. A door is used as a starting
+        position to connect to another room's door. */
+        int x0 = getBotLeftCorn().getX() + RandomUtils.uniform(random, 1, width - 1);
+        int y0 = getBotLeftCorn().getY() + RandomUtils.uniform(random, 1, height - 1);
+        door = new Door(new Position(x0, y0));
+    }
+
+    public void setCorners(Position botLeftCorn) {
+        botRightCorn = new Position(botLeftCorn.getX() + width - 1, botLeftCorn.getY());
+        uppLeftCorn = new Position(botLeftCorn.getX(), botLeftCorn.getY() + height - 1);
+        uppRightCorn = new Position(botRightCorn.getX(), uppLeftCorn.getY());
+    }
+
+    public static Room makeRoom(TETile[][] world, Random random) {
         Room r = new Room();
-        makeShape(r);
-        r.botLeftCorn = new Position(RandomUtils.uniform(RANDOM, 60), RandomUtils.uniform(RANDOM, 40));
-        r.setCorners();
-        r.door = r.makeDoor();
+        makeShape(r, random);
+        r.botLeftCorn = new Position(RandomUtils.uniform(random, 70), RandomUtils.uniform(random, 45));
+        r.setCorners(r.botLeftCorn);
+        r.corners = new Position[] {r.botLeftCorn, r.botRightCorn, r.uppLeftCorn, r.uppRightCorn};
+        r.setDoor(random);
         Position.checkOverlap(world, r);
         return r;
     }
 
-    public void setCorners() {
-        botRightCorn = new Position(botLeftCorn.x + width - 1, botLeftCorn.y);
-        uppLeftCorn = new Position(botLeftCorn.x, botLeftCorn.y + height - 1);
-        uppRightCorn = new Position(botRightCorn.x, uppLeftCorn.y);
+    public void addNeighbor(Room room) {
+        /* Finds and stores neighboring rooms. */
+        while (neighborCount < neighbors.length) {
+            neighbors[neighborCount] = room;
+            neighborCount++;
+        }
     }
 
-    public void addConnectPoint(Room neighborRoom, TETile[][] world) {
-        /*
-        if (Arrays.asList(connected).contains(this) == false && Arrays.asList(neighbors).contains(neighborRoom) == false) {
-
-         */
-            int posX = door.doorP.x;
-            int posY = neighborRoom.door.doorP.y;
-            if (door.doorP.x == neighborRoom.door.doorP.y) {
-                posX = neighborRoom.door.doorP.x;
-            }
-            Game.recordConnection(this);
-            Game.recordConnection(neighborRoom);
-            Hallway.drawCornerHallway(world, new Position(posX,posY));
-            Hallway.drawHorizontalHallway(world, new Position(posX, posY), neighborRoom.door.doorP);
-            Hallway.drawVerticalHallway(world, new Position(posX, posY), door.doorP);
-            world[posX][posY] = Tileset.WATER;
-
-            /*
-        } else {
-            return;
+    public void connectRooms(TETile[][] world, Room neighborRoom, Random r) {
+        /* Creates a connection between a room and a neighboring room.
+        * It can also create a second connection randomly
+        */
+        connectRoomHelper(world, this, neighborRoom);
+        int n = RandomUtils.uniform(r, 2);
+        if (n == 1) {
+            connectRoomHelper(world, neighborRoom, this);
         }
-             */
     }
 
-
-
-
-    /*
-    public static Room makeRoom(TETile[][] world, Door entranceDoor) {
-        Room r = new Room();
-        makeShape(r);
-        int xOffset = RandomUtils.uniform(RANDOM, r.width/2);
-        int yOffset = RandomUtils.uniform(RANDOM, r.height/2);
-        if (entranceDoor.orientation.equals("corBot")) {
-            r.entranceDoor = new Door("Top", new Position(entranceDoor.doorP.x,entranceDoor.doorP.y - 1));
-            r.botLeftCorn = new Position(r.entranceDoor.doorP.x - xOffset - 1, r.entranceDoor.doorP.y - r.height + 1);
-        } else if (entranceDoor.orientation.equals("corRight")) {
-            r.entranceDoor = new Door("Left", new Position(entranceDoor.doorP.x + 1, entranceDoor.doorP.y));
-            r.botLeftCorn = new Position(r.entranceDoor.doorP.x, r.entranceDoor.doorP.y - yOffset - 1);
-        } else if (entranceDoor.orientation.equals("corLeft")) {
-            r.entranceDoor = new Door("Right", new Position(entranceDoor.doorP.x - 1, entranceDoor.doorP.y));
-            r.botLeftCorn = new Position(r.entranceDoor.doorP.x - r.width + 1, r.entranceDoor.doorP.y - yOffset - 1);
-        } else {
-            r.entranceDoor = new Door("Bottom", new Position(entranceDoor.doorP.x, entranceDoor.doorP.y + 1));
-            r.botLeftCorn = new Position(r.entranceDoor.doorP.x - xOffset - 1, r.entranceDoor.doorP.y);
+    public void connectRoomHelper(TETile[][] world, Room room, Room neighborRoom) {
+        /* This function draws a hallway between a room and a neighboring room. */
+        int posX = room.getDoor().getDoorP().getX();
+        int posY = neighborRoom.getDoor().getDoorP().getY();
+        if (room.getDoor().getDoorP().getY() == neighborRoom.getDoor().getDoorP().getY()) {
+            posX = neighborRoom.getDoor().getDoorP().getX();
         }
-        r.setCorners();
-        r.exitDoor = r.makeDoor();
-        while (r.exitDoor.doorP.x == r.entranceDoor.doorP.x && r.exitDoor.doorP.y == r.entranceDoor.doorP.y) {
-            r.exitDoor = r.makeDoor();
-        }
-        entranceDoor.connected = true;
-        Position.checkOverlap(world, r);
-        return r;
+        Position connectPoint = new Position(posX, posY);
+        Hallway.drawHallways(world, connectPoint, room, neighborRoom);
+        world[posX][posY] = Tileset.FLOOR;
     }
-
-     */
 
     public void drawRoom(TETile[][] world) {
-        Position p = botLeftCorn;
-        for (int x = 0; x < width; x += 1) {
-            int xCoord = p.x + x;
-            for (int y = 0; y < height; y += 1) {
-                int yCoord = p.y + y;
-                if ((xCoord == p.x) || (xCoord == (p.x + width - 1)) ||
-                        (yCoord == p.y) || (yCoord == (p.y + height - 1))) {
+        Position p = getBotLeftCorn();
+        for (int x = 0; x < getWidth(); x++) {
+            int xCoord = p.getX() + x;
+            for (int y = 0; y < getHeight(); y++) {
+                int yCoord = p.getY() + y;
+                if ((xCoord == p.getX())
+                        || (xCoord == (p.getX() + getWidth() - 1))
+                        || (yCoord == p.getY())
+                        || (yCoord == (p.getY() + getHeight() - 1))) {
                     world[xCoord][yCoord] = Tileset.WALL;
                 } else {
                     world[xCoord][yCoord] = Tileset.FLOOR;
                 }
             }
         }
-        world[door.doorP.x][door.doorP.y] = Tileset.WATER;
+        world[getDoor().getDoorP().getX()][getDoor().getDoorP().getY()] = Tileset.FLOOR;
     }
 
-    public static void makeShape(Room room) {
-        int tileNum = RANDOM.nextInt(2);
-        /* make square or rectangle shape*/
+    public static void makeShape(Room room, Random random) {
+        /* Randomly chooses square or rectangle shaped room */
+        int tileNum = random.nextInt(2);
         if (tileNum == 0) {
-            room.width = RandomUtils.uniform(RANDOM, 4, 8);
-            room.height = room.width;
+            room.width = RandomUtils.uniform(random, 5, 11);
+            room.height = room.getWidth();
         } else {
-            room.width = RandomUtils.uniform(RANDOM, 4, 8);
-            room.height = RandomUtils.uniform(RANDOM, 4, 8);
+            room.width = RandomUtils.uniform(random, 5, 11);
+            room.height = RandomUtils.uniform(random, 5, 11);
         }
-    }
-
-    public static class Door {
-        public Position doorP;
-        public String orientation;
-        public boolean connected;
-        public Door(String o, Position p) {
-            doorP = p;
-            orientation = o;
-            connected = false;
-        }
-    }
-
-    public Door makeDoor(){
-        int x0 = botLeftCorn.x + RandomUtils.uniform(RANDOM, 1, width - 1);
-        int y0 = botLeftCorn.y + RandomUtils.uniform(RANDOM, 1, height - 1);
-        return new Door("Door", new Position(x0, y0));
     }
 }

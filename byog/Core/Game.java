@@ -8,11 +8,9 @@ import java.util.Random;
 
 public class Game {
     /* Create a pseudorandom world */
-    private static final long SEED = 909088295;
+    private static final long SEED = 2295;
     private static final Random RANDOM = new Random(SEED);
     private static Room[] rooms;
-    private static Room[] connected;
-    private static Position[] connectPoints;
     private static int size;
 
     TERenderer ter = new TERenderer();
@@ -27,20 +25,17 @@ public class Game {
     }
 
     public static void generateRooms(TETile[][] world) {
-        size = RandomUtils.uniform(RANDOM, 19, 20);
+        size = RandomUtils.uniform(RANDOM, 14, 18);
         rooms = new Room[size];
-        connected = new Room[size];
         int numRooms = 0;
         int count = 0;
-        int maxTries = 100;
-
+        int maxTries = 200;
         while (numRooms < size) {
             try {
-                Room newRoom = Room.makeRoom(world);
+                Room newRoom = Room.makeRoom(world, RANDOM);
                 rooms[numRooms] = newRoom;
                 newRoom.drawRoom(world);
                 numRooms++;
-
             } catch (RuntimeException e) {
                 count++;
                 if (count == maxTries) {
@@ -50,33 +45,24 @@ public class Game {
         }
     }
 
-    public static void getNeighbors() {
+    public static void findNeighbors() {
         for (Room room : rooms) {
-            room.neighborCount = 0;
+            int neighborCount = room.getNeighborCount();
             for (Room room2: rooms) {
-                Position pos1 = room.door.doorP;
-                Position pos2 = room2.door.doorP;
-                if ((Math.abs(pos1.x - pos2.x) <7) && (Math.abs(pos1.y - pos2.y) < 7)) {
+                Position pos1 = room.getDoor().getDoorP();
+                Position pos2 = room2.getDoor().getDoorP();
+                if ((Math.abs(pos1.getX() - pos2.getX()) < 7) && (Math.abs(pos1.getY() - pos2.getY()) < 7)) {
                     room.addNeighbor(room2);
                 }
             }
         }
     }
 
-
-    public static void populateConnectPoints(TETile[][] world) {
+    public static void generateHallways(TETile[][] world) {
         for (Room room: rooms) {
-            for (Room neighborRoom: room.neighbors) {
-                room.addConnectPoint(neighborRoom, world);
+            for (Room neighborRoom: room.getNeighbors()) {
+                room.connectRooms(world, neighborRoom, RANDOM);
             }
-        }
-    }
-
-    public static void recordConnection(Room room) {
-        int count = 0;
-        if (count <  connected.length) {
-            connected[count] = room;
-            count ++;
         }
     }
 

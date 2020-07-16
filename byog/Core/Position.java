@@ -3,23 +3,38 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+/**
+* Class for determining the position of a tile on the grid
+ */
 public class Position {
-    public int x;
-    public int y;
-    public TETile tile;
+    private int x;
+    private int y;
 
-    public Position(int xi, int yi){
+    public Position(int xi, int yi) {
         this.x = xi;
         this.y = yi;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    /**
+     *
+     * @param world
+     * @param room
+     * Checks whether a room is out of bounds or overlaps another room.
+     */
     public static void checkOverlap(TETile[][] world, Room room) {
-        Position[] corners = new Position[]{room.botRightCorn, room.botLeftCorn, room.uppLeftCorn, room.uppRightCorn};
-        for (Position p : corners) {
-            if (world[p.x][p.y] != Tileset.NOTHING) {
+        for (Position p : room.getCorners()) {
+            if (world[p.getX()][p.getY()] != Tileset.NOTHING) {
                 throw new RuntimeException("Room can't overlap with another room.");
             }
-            if (p.x <= 5 || p.y <= 5 || p.x > test.WIDTH - 5 || p.y > test.HEIGHT - 5) {
+            if (p.getX() <= 5 || p.getY() <= 5 || p.getX() > test.WIDTH - 5 || p.getY() > test.HEIGHT - 5) {
                 throw new RuntimeException("Room can't be out of bounds");
             }
         }
