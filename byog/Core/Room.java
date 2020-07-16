@@ -74,7 +74,7 @@ public class Room {
         door = new Door(new Position(x0, y0));
     }
 
-    public void setCorners(Position botLeftCorn) {
+    public void setCorners() {
         botRightCorn = new Position(botLeftCorn.getX() + width - 1, botLeftCorn.getY());
         uppLeftCorn = new Position(botLeftCorn.getX(), botLeftCorn.getY() + height - 1);
         uppRightCorn = new Position(botRightCorn.getX(), uppLeftCorn.getY());
@@ -83,8 +83,9 @@ public class Room {
     public static Room makeRoom(TETile[][] world, Random random) {
         Room r = new Room();
         makeShape(r, random);
-        r.botLeftCorn = new Position(RandomUtils.uniform(random, 80), RandomUtils.uniform(random, 45));
-        r.setCorners(r.botLeftCorn);
+        r.botLeftCorn = new Position(RandomUtils.uniform(random, 80),
+                RandomUtils.uniform(random, 45));
+        r.setCorners();
         r.corners = new Position[] {r.botLeftCorn, r.botRightCorn, r.uppLeftCorn, r.uppRightCorn};
         r.setDoor(random);
         Position.checkOverlap(world, r);

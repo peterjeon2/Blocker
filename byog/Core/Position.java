@@ -34,7 +34,10 @@ public class Position {
             if (world[p.getX()][p.getY()] != Tileset.NOTHING) {
                 throw new RuntimeException("Room can't overlap with another room.");
             }
-            if (p.getX() <= 5 || p.getY() <= 5 || p.getX() > test.WIDTH - 5 || p.getY() > test.HEIGHT - 5) {
+            if (p.getX() <= 5
+                    || p.getY() <= 5
+                    || p.getX() > Game.WIDTH - 5
+                    || p.getY() > Game.HEIGHT - 5) {
                 throw new RuntimeException("Room can't be out of bounds");
             }
         }

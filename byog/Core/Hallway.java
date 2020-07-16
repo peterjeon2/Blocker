@@ -8,14 +8,14 @@ import byog.TileEngine.Tileset;
  */
 
 public class Hallway {
-    public static void drawHorizontalHallway(TETile[][] world, Position connectPos, Position startPos) {
-        int width = Math.abs(connectPos.getX() - startPos.getX());
+    public static void drawHorizontalHallway(TETile[][] world, Position conPos, Position startPos) {
+        int width = Math.abs(conPos.getX() - startPos.getX());
         int height = 3;
         Position p;
-        if (connectPos.getX() > startPos.getX()) {
+        if (conPos.getX() > startPos.getX()) {
             p = new Position(startPos.getX(), startPos.getY() - 1);
         } else {
-            p = new Position(connectPos.getX(), connectPos.getY() - 1);
+            p = new Position(conPos.getX(), conPos.getY() - 1);
         }
         for (int x = 0; x < width; x += 1) {
             int xCoord = p.getX() + x;
@@ -34,14 +34,14 @@ public class Hallway {
         }
     }
 
-    public static void drawVerticalHallway(TETile[][] world, Position connectPos, Position startPos) {
-        int height = Math.abs(connectPos.getY() - startPos.getY());
+    public static void drawVerticalHallway(TETile[][] world, Position conPos, Position startPos) {
+        int height = Math.abs(conPos.getY() - startPos.getY());
         int width = 3;
         Position p;
-        if (connectPos.getY() > startPos.getY()) {
+        if (conPos.getY() > startPos.getY()) {
             p = new Position(startPos.getX() - 1, startPos.getY());
         } else {
-            p = new Position(connectPos.getX() - 1, connectPos.getY());
+            p = new Position(conPos.getX() - 1, conPos.getY());
         }
         for (int x = 0; x < width; x += 1) {
             int xCoord = p.getX() + x;
@@ -60,8 +60,8 @@ public class Hallway {
         }
     }
 
-    public static void drawCornerHallway(TETile[][] world, Position connectPoint) {
-        Position p = new Position(connectPoint.getX() - 1, connectPoint.getY() - 1);
+    public static void drawCornerHallway(TETile[][] world, Position conPos) {
+        Position p = new Position(conPos.getX() - 1, conPos.getY() - 1);
         for (int x = 0; x < 3; x += 1) {
             int xCoord = p.getX() + x;
             for (int y = 0; y < 3; y += 1) {
@@ -73,13 +73,13 @@ public class Hallway {
                 }
             }
         }
-        world[connectPoint.getX()][connectPoint.getY()] = Tileset.FLOOR;
+        world[conPos.getX()][conPos.getY()] = Tileset.FLOOR;
     }
 
-    public static void drawHallways(TETile[][] world, Position connectPoint, Room room, Room room2) {
-        drawCornerHallway(world, connectPoint);
-        drawHorizontalHallway(world, connectPoint, room2.getDoor().getDoorP());
-        drawVerticalHallway(world, connectPoint, room.getDoor().getDoorP());
+    public static void drawHallways(TETile[][] world, Position conPos, Room room, Room room2) {
+        drawCornerHallway(world, conPos);
+        drawHorizontalHallway(world, conPos, room2.getDoor().getDoorP());
+        drawVerticalHallway(world, conPos, room.getDoor().getDoorP());
     }
 }
 

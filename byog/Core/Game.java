@@ -8,17 +8,24 @@ import java.util.Random;
 
 public class Game {
     /* Create a pseudorandom world */
-    private static final long SEED = 2295;
-    private static final Random RANDOM = new Random(SEED);
+    private static long SEED;
+    private static Random RANDOM;
     private static Room[] rooms;
     private static int size;
+    public static final int WIDTH = 100;
+    public static final int HEIGHT = 55;
+
 
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
 
+    public static void setSeed(String s) {
+        SEED = Long.parseLong(s);
+        RANDOM = new Random(SEED);
+    }
     public static void fillEmpty(TETile[][] world) {
-        for (int x = 0; x < test.WIDTH; x += 1) {
-            for (int y = 0; y < test.HEIGHT; y += 1) {
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
                 world[x][y] = Tileset.NOTHING;
             }
         }
@@ -51,7 +58,8 @@ public class Game {
             for (Room room2: rooms) {
                 Position pos1 = room.getDoor().getDoorP();
                 Position pos2 = room2.getDoor().getDoorP();
-                if ((Math.abs(pos1.getX() - pos2.getX()) < 10) && (Math.abs(pos1.getY() - pos2.getY()) < 10)) {
+                if ((Math.abs(pos1.getX() - pos2.getX()) < 10)
+                        && (Math.abs(pos1.getY() - pos2.getY()) < 10)) {
                     room.addNeighbor(room2);
                 }
             }
@@ -87,11 +95,13 @@ public class Game {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
-        // TODO: Fill out this method to run the game using the input passed in,
-        // and return a 2D tile representation of the world that would have been
-        // drawn if the same inputs had been given to playWithKeyboard().
-
-        TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
+        ter.initialize(WIDTH, HEIGHT);
+        Game.setSeed(input);
+        TETile[][] world = new TETile[WIDTH][HEIGHT];
+        Game.fillEmpty(world);
+        Game.generateRooms(world);
+        Game.findNeighbors();
+        Game.generateHallways(world);
+        return world;
     }
 }
