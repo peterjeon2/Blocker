@@ -5,7 +5,8 @@ import byog.TileEngine.Tileset;
 import java.util.Random;
 
 /**
- * This class provides methods that construct and draw randomly generated rooms in the world.
+ * This class provides methods that construct and draw
+ * randomly generated rooms in the world.
  * The game class calls these methods to build out the world.
  */
 public class Room {
@@ -82,7 +83,7 @@ public class Room {
     public static Room makeRoom(TETile[][] world, Random random) {
         Room r = new Room();
         makeShape(r, random);
-        r.botLeftCorn = new Position(RandomUtils.uniform(random, 70), RandomUtils.uniform(random, 45));
+        r.botLeftCorn = new Position(RandomUtils.uniform(random, 80), RandomUtils.uniform(random, 45));
         r.setCorners(r.botLeftCorn);
         r.corners = new Position[] {r.botLeftCorn, r.botRightCorn, r.uppLeftCorn, r.uppRightCorn};
         r.setDoor(random);
@@ -144,11 +145,11 @@ public class Room {
         /* Randomly chooses square or rectangle shaped room */
         int tileNum = random.nextInt(2);
         if (tileNum == 0) {
-            room.width = RandomUtils.uniform(random, 5, 11);
+            room.width = RandomUtils.uniform(random, 4, 12);
             room.height = room.getWidth();
         } else {
-            room.width = RandomUtils.uniform(random, 5, 11);
-            room.height = RandomUtils.uniform(random, 5, 11);
+            room.width = RandomUtils.uniform(random, 4, 12);
+            room.height = RandomUtils.uniform(random, 4, 12);
         }
     }
 }

@@ -6,8 +6,8 @@ import byog.TileEngine.TETile;
 import java.util.Random;
 
 public class test {
-    public static final int WIDTH = 80;
-    public static final int HEIGHT = 50;
+    public static final int WIDTH = 100;
+    public static final int HEIGHT = 55;
 
     public static void main(String[] args) {
         TERenderer ter = new TERenderer();

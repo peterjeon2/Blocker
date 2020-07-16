@@ -25,7 +25,7 @@ public class Game {
     }
 
     public static void generateRooms(TETile[][] world) {
-        size = RandomUtils.uniform(RANDOM, 14, 18);
+        size = RandomUtils.uniform(RANDOM, 18, 24);
         rooms = new Room[size];
         int numRooms = 0;
         int count = 0;
@@ -51,7 +51,7 @@ public class Game {
             for (Room room2: rooms) {
                 Position pos1 = room.getDoor().getDoorP();
                 Position pos2 = room2.getDoor().getDoorP();
-                if ((Math.abs(pos1.getX() - pos2.getX()) < 7) && (Math.abs(pos1.getY() - pos2.getY()) < 7)) {
+                if ((Math.abs(pos1.getX() - pos2.getX()) < 10) && (Math.abs(pos1.getY() - pos2.getY()) < 10)) {
                     room.addNeighbor(room2);
                 }
             }
