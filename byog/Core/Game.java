@@ -9,7 +9,7 @@ import java.util.Random;
 public class Game {
     /* Create a pseudorandom world */
     private static long SEED;
-    private static Random RANDOM;
+    static Random RANDOM;
     private static Room[] rooms;
     private static int size;
     public static final int WIDTH = 100;
@@ -19,8 +19,20 @@ public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
 
-    public static void setSeed(String s) {
-        SEED = Long.parseLong(s);
+    public static void processInput(String s) {
+        int i = 0;
+        while (i < s.length()) {
+            Object first = s.charAt(i);
+            if (first.equals("N") || first.equals("n")) {
+                String rest = s.substring(1);
+                SEED = Long.parseLong(rest);
+            } else {
+                String rest = s;
+                SEED = Long.parseLong(rest);
+            }
+            i++;
+        }
+
         RANDOM = new Random(SEED);
     }
     public static void fillEmpty(TETile[][] world) {
@@ -69,7 +81,7 @@ public class Game {
     public static void generateHallways(TETile[][] world) {
         for (Room room: rooms) {
             for (Room neighborRoom: room.getNeighbors()) {
-                room.connectRooms(world, neighborRoom, RANDOM);
+                room.connectRooms(world, neighborRoom);
             }
         }
     }
@@ -96,7 +108,7 @@ public class Game {
      */
     public TETile[][] playWithInputString(String input) {
         ter.initialize(WIDTH, HEIGHT);
-        Game.setSeed(input);
+        Game.processInput(input);
         TETile[][] world = new TETile[WIDTH][HEIGHT];
         Game.fillEmpty(world);
         Game.generateRooms(world);

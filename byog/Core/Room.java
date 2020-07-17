@@ -66,11 +66,11 @@ public class Room {
     }
 
 
-    public void setDoor(Random random) {
+    public void setDoor() {
         /* Creates a door in a room. A door is used as a starting
         position to connect to another room's door. */
-        int x0 = getBotLeftCorn().getX() + RandomUtils.uniform(random, 1, width - 1);
-        int y0 = getBotLeftCorn().getY() + RandomUtils.uniform(random, 1, height - 1);
+        int x0 = getBotLeftCorn().getX() + RandomUtils.uniform(Game.RANDOM, 1, width - 1);
+        int y0 = getBotLeftCorn().getY() + RandomUtils.uniform(Game.RANDOM, 1, height - 1);
         door = new Door(new Position(x0, y0));
     }
 
@@ -82,12 +82,12 @@ public class Room {
 
     public static Room makeRoom(TETile[][] world, Random random) {
         Room r = new Room();
-        makeShape(r, random);
+        r.makeShape();
         r.botLeftCorn = new Position(RandomUtils.uniform(random, 80),
                 RandomUtils.uniform(random, 45));
         r.setCorners();
         r.corners = new Position[] {r.botLeftCorn, r.botRightCorn, r.uppLeftCorn, r.uppRightCorn};
-        r.setDoor(random);
+        r.setDoor();
         Position.checkOverlap(world, r);
         return r;
     }
@@ -100,12 +100,12 @@ public class Room {
         }
     }
 
-    public void connectRooms(TETile[][] world, Room neighborRoom, Random r) {
+    public void connectRooms(TETile[][] world, Room neighborRoom) {
         /* Creates a connection between a room and a neighboring room.
         * It can also create a second connection randomly
         */
         connectRoomHelper(world, this, neighborRoom);
-        int n = RandomUtils.uniform(r, 2);
+        int n = RandomUtils.uniform(Game.RANDOM, 2);
         if (n == 1) {
             connectRoomHelper(world, neighborRoom, this);
         }
@@ -142,15 +142,15 @@ public class Room {
         world[getDoor().getDoorP().getX()][getDoor().getDoorP().getY()] = Tileset.FLOOR;
     }
 
-    public static void makeShape(Room room, Random random) {
+    public void makeShape() {
         /* Randomly chooses square or rectangle shaped room */
-        int tileNum = random.nextInt(2);
+        int tileNum = Game.RANDOM.nextInt(2);
         if (tileNum == 0) {
-            room.width = RandomUtils.uniform(random, 4, 12);
-            room.height = room.getWidth();
+            width = RandomUtils.uniform(Game.RANDOM, 4, 12);
+            height = getWidth();
         } else {
-            room.width = RandomUtils.uniform(random, 4, 12);
-            room.height = RandomUtils.uniform(random, 4, 12);
+            width = RandomUtils.uniform(Game.RANDOM, 4, 12);
+            height = RandomUtils.uniform(Game.RANDOM, 4, 12);
         }
     }
 }
