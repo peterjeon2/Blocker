@@ -10,7 +10,7 @@ import java.util.Random;
  * randomly generated rooms in the world.
  * The game class calls these methods to build out the world.
  */
-public class Room{
+public class Room {
     private int width;
     private int height;
     private Position botLeftCorn;

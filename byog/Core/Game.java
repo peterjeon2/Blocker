@@ -2,20 +2,21 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
-import byog.TileEngine.Tileset;
 
-import java.io.*;
-import java.util.Random;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.File;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
+import java.io.FileNotFoundException;
 
-public class Game implements Serializable{
+public class Game {
     /* Create a pseudorandom world */
-    private static long SEED;
     public static final int WIDTH = 100;
     public static final int HEIGHT = 55;
     private static TETile[][] finalWorldFrame;
-
-
-    TERenderer ter = new TERenderer();
+    private TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
 
 
@@ -45,14 +46,14 @@ public class Game implements Serializable{
 
     public void newGame(Long seed) {
         ter.initialize(WIDTH, HEIGHT);
-        World newWorld = new World(WIDTH , HEIGHT, seed);
+        World newWorld = new World(WIDTH, HEIGHT, seed);
         finalWorldFrame = newWorld.generateWorld(ter, seed);
 
     }
 
 
-    private void loadWorld() {
-        File f = new File("world.ser");
+    private static void loadWorld() {
+        File f = new File("world.txt");
         if (f.exists()) {
             try {
                 FileInputStream fs = new FileInputStream(f);
@@ -70,11 +71,10 @@ public class Game implements Serializable{
                 System.exit(0);
             }
         }
-        /* In the case no World has been saved yet, we return a new one. */
     }
 
     private static void saveWorld() {
-        File f = new File("world.ser");
+        File f = new File("world.txt");
         try {
             if (!f.exists()) {
                 f.createNewFile();
@@ -91,15 +91,6 @@ public class Game implements Serializable{
             System.exit(0);
         }
     }
-
-
-    /*
-    public static String makeWorldStringName(Long seed) {
-        String string1 = "world";
-        String string2 = seed.toString();
-        return string1 + string2;
-    }
-
 
 
     /**
@@ -126,18 +117,12 @@ public class Game implements Serializable{
         if (first == 'N' || first == 'n') {
             Long seed = processInput(input);
             newGame(seed);
-            System.out.println(finalWorldFrame);
-
-
         } else if (first == 'L' || first == 'l') {
             loadWorld();
         }
         if (input.contains(":Q") || input.contains(":q")) {
             saveWorld();
-            }
-
-        ter.renderFrame(finalWorldFrame);
-        System.out.println(finalWorldFrame);
+        }
         return finalWorldFrame;
     }
 }

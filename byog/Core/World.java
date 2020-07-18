@@ -7,7 +7,7 @@ import byog.TileEngine.Tileset;
 import java.io.Serializable;
 import java.util.Random;
 
-public class World implements Serializable{
+public class World implements Serializable {
     private static final long serialVersionUID = 123123123123123L;
     private static int WIDTH;
     private static int HEIGHT;
@@ -31,7 +31,7 @@ public class World implements Serializable{
     }
 
     public static void generateRooms(TETile[][] world) {
-        size = RandomUtils.uniform(RANDOM, 1, 2);
+        size = RandomUtils.uniform(RANDOM, 18, 24);
         rooms = new Room[size];
         int numRooms = 0;
         int count = 0;
@@ -53,7 +53,6 @@ public class World implements Serializable{
 
     public static void findNeighbors() {
         for (Room room : rooms) {
-            int neighborCount = room.getNeighborCount();
             for (Room room2 : rooms) {
                 Position pos1 = room.getDoor().getDoorP();
                 Position pos2 = room2.getDoor().getDoorP();
