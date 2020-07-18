@@ -9,12 +9,12 @@ import java.util.Random;
 
 public class World implements Serializable {
     private static final long serialVersionUID = 123123123123123L;
-    private static int WIDTH;
-    private static int HEIGHT;
-    private static TETile[][] world;
-    static Random RANDOM;
-    private static Room[] rooms;
-    private static int size;
+    private int WIDTH;
+    private int HEIGHT;
+    private TETile[][] world;
+    private Random RANDOM;
+    private Room[] rooms;
+    private int size;
 
     public World(int w, int h, Long seed) {
         WIDTH = w;
@@ -22,7 +22,7 @@ public class World implements Serializable {
         RANDOM = new Random(seed);
     }
 
-    public static void fillEmpty(TETile[][] world) {
+    public void fillEmpty(TETile[][] world) {
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
                 world[x][y] = Tileset.NOTHING;
@@ -30,7 +30,7 @@ public class World implements Serializable {
         }
     }
 
-    public static void generateRooms(TETile[][] world) {
+    public void generateRooms(TETile[][] world) {
         size = RandomUtils.uniform(RANDOM, 18, 24);
         rooms = new Room[size];
         int numRooms = 0;
@@ -51,7 +51,7 @@ public class World implements Serializable {
         }
     }
 
-    public static void findNeighbors() {
+    public void findNeighbors() {
         for (Room room : rooms) {
             for (Room room2 : rooms) {
                 Position pos1 = room.getDoor().getDoorP();
@@ -64,15 +64,15 @@ public class World implements Serializable {
         }
     }
 
-    public static void generateHallways(TETile[][] world) {
+    public void generateHallways(TETile[][] world) {
         for (Room room : rooms) {
             for (Room neighborRoom : room.getNeighbors()) {
-                room.connectRooms(world, neighborRoom);
+                room.connectRooms(world, neighborRoom, RANDOM);
             }
         }
     }
 
-    public static TETile[][] generateWorld(TERenderer ter, Long seed) {
+    public TETile[][] generateWorld(TERenderer ter, Long seed) {
         world = new TETile[WIDTH][HEIGHT];
         fillEmpty(world);
         generateRooms(world);

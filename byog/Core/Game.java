@@ -15,7 +15,7 @@ public class Game {
     /* Create a pseudorandom world */
     public static final int WIDTH = 100;
     public static final int HEIGHT = 55;
-    private static TETile[][] finalWorldFrame;
+    private TETile[][] finalWorldFrame;
     private TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
 
@@ -45,14 +45,13 @@ public class Game {
 
 
     public void newGame(Long seed) {
-        ter.initialize(WIDTH, HEIGHT);
         World newWorld = new World(WIDTH, HEIGHT, seed);
         finalWorldFrame = newWorld.generateWorld(ter, seed);
 
     }
 
 
-    private static void loadWorld() {
+    private void loadWorld() {
         File f = new File("world.txt");
         if (f.exists()) {
             try {
@@ -73,7 +72,7 @@ public class Game {
         }
     }
 
-    private static void saveWorld() {
+    private void saveWorld() {
         File f = new File("world.txt");
         try {
             if (!f.exists()) {
