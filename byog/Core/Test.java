@@ -6,7 +6,7 @@ public class Test {
 
     public static void main(String[] args) {
         Game game = new Game();
-        game.playWithInputString("L56:Q");
+        game.playWithInputString("L21000:Q");
 
     }
 }

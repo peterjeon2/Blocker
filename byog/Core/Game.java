@@ -10,9 +10,6 @@ import java.util.Random;
 public class Game implements Serializable{
     /* Create a pseudorandom world */
     private static long SEED;
-    static Random RANDOM;
-    private static Room[] rooms;
-    private static int size;
     public static final int WIDTH = 100;
     public static final int HEIGHT = 55;
     private static TETile[][] finalWorldFrame;
@@ -45,108 +42,64 @@ public class Game implements Serializable{
         return seed;
     }
 
-    public static void setRandom(Long seed) {
-        RANDOM = new Random(seed);
-    }
 
-    public static void fillEmpty(TETile[][] world) {
-        for (int x = 0; x < WIDTH; x += 1) {
-            for (int y = 0; y < HEIGHT; y += 1) {
-                world[x][y] = Tileset.NOTHING;
-            }
-        }
-    }
-
-    public static void generateRooms(TETile[][] world) {
-        size = RandomUtils.uniform(RANDOM, 18, 24);
-        rooms = new Room[size];
-        int numRooms = 0;
-        int count = 0;
-        int maxTries = 200;
-        while (numRooms < size) {
-            try {
-                Room newRoom = Room.makeRoom(world, RANDOM);
-                rooms[numRooms] = newRoom;
-                newRoom.drawRoom(world);
-                numRooms++;
-            } catch (RuntimeException e) {
-                count++;
-                if (count == maxTries) {
-                    throw new RuntimeException("Reached the max amount of tries");
-                }
-            }
-        }
-    }
-
-    public static void findNeighbors() {
-        for (Room room : rooms) {
-            int neighborCount = room.getNeighborCount();
-            for (Room room2 : rooms) {
-                Position pos1 = room.getDoor().getDoorP();
-                Position pos2 = room2.getDoor().getDoorP();
-                if ((Math.abs(pos1.getX() - pos2.getX()) < 10)
-                        && (Math.abs(pos1.getY() - pos2.getY()) < 10)) {
-                    room.addNeighbor(room2);
-                }
-            }
-        }
-    }
-
-    public static void generateHallways(TETile[][] world) {
-        for (Room room : rooms) {
-            for (Room neighborRoom : room.getNeighbors()) {
-                room.connectRooms(world, neighborRoom);
-            }
-        }
-    }
-
-    public static TETile[][] generateWorld(TERenderer ter, Long seed) {
-
-        TETile[][] world = new TETile[WIDTH][HEIGHT];
-        fillEmpty(world);
-        setRandom(seed);
-        generateRooms(world);
-        findNeighbors();
-        generateHallways(world);
-        return world;
-
-    }
-
-    public TETile[][] newGame(Long seed) {
+    public void newGame(Long seed) {
         ter.initialize(WIDTH, HEIGHT);
-        return generateWorld(ter, seed);
+        World newWorld = new World(WIDTH , HEIGHT, seed);
+        finalWorldFrame = newWorld.generateWorld(ter, seed);
+
     }
 
-/*
+
+    private void loadWorld() {
+        File f = new File("world.ser");
+        if (f.exists()) {
+            try {
+                FileInputStream fs = new FileInputStream(f);
+                ObjectInputStream os = new ObjectInputStream(fs);
+                finalWorldFrame = (TETile[][]) os.readObject();
+                os.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("file not found");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println(e);
+                System.exit(0);
+            } catch (ClassNotFoundException e) {
+                System.out.println("class not found");
+                System.exit(0);
+            }
+        }
+        /* In the case no World has been saved yet, we return a new one. */
+    }
+
+    private static void saveWorld() {
+        File f = new File("world.ser");
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fs = new FileOutputStream(f);
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(finalWorldFrame);
+            os.close();
+        }  catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
+    }
+
+
+    /*
     public static String makeWorldStringName(Long seed) {
         String string1 = "world";
         String string2 = seed.toString();
         return string1 + string2;
     }
 
- */
-
-    public static void saveGame() throws IOException {
-        File f = new File("World.ser");
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
-        objectOutputStream.writeObject(finalWorldFrame);
-        objectOutputStream.close();
-
-    }
-
-    public static TETile[][] loadGame() throws IOException, ClassNotFoundException {
-        /*
-        File f = new File("World.ser");
-
-        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(f));
-        TETile[][] world = (TETile[][]) objectInputStream.readObject();
-        objectInputStream.close();
-        return world;
-
-         */
-        return finalWorldFrame;
-
-    }
 
 
     /**
@@ -170,36 +123,21 @@ public class Game implements Serializable{
      */
     public TETile[][] playWithInputString(String input) {
         char first = input.charAt(0);
-
         if (first == 'N' || first == 'n') {
             Long seed = processInput(input);
-            finalWorldFrame = newGame(seed);
-            ter.renderFrame(finalWorldFrame);
+            newGame(seed);
+            System.out.println(finalWorldFrame);
+
 
         } else if (first == 'L' || first == 'l') {
-            Long seed = processInput(input);
-            finalWorldFrame = newGame(seed);
-
-            try {
-                finalWorldFrame = loadGame();
-                ter.renderFrame(finalWorldFrame);
-            } catch (ClassNotFoundException | IOException e) {
-                System.out.println("World not found");
-            }
-
-
-        } else {
-            System.out.println("Need to enter a valid letter");
-            return null;
+            loadWorld();
         }
-
         if (input.contains(":Q") || input.contains(":q")) {
-            try {
-                saveGame();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
+            saveWorld();
             }
-        }
+
+        ter.renderFrame(finalWorldFrame);
+        System.out.println(finalWorldFrame);
         return finalWorldFrame;
     }
 }

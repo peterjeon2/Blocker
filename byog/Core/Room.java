@@ -2,6 +2,7 @@ package byog.Core;
 
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
+
 import java.util.Random;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Random;
  * randomly generated rooms in the world.
  * The game class calls these methods to build out the world.
  */
-public class Room {
+public class Room{
     private int width;
     private int height;
     private Position botLeftCorn;
@@ -69,8 +70,8 @@ public class Room {
     public void setDoor() {
         /* Creates a door in a room. A door is used as a starting
         position to connect to another room's door. */
-        int x0 = getBotLeftCorn().getX() + RandomUtils.uniform(Game.RANDOM, 1, width - 1);
-        int y0 = getBotLeftCorn().getY() + RandomUtils.uniform(Game.RANDOM, 1, height - 1);
+        int x0 = getBotLeftCorn().getX() + RandomUtils.uniform(World.RANDOM, 1, width - 1);
+        int y0 = getBotLeftCorn().getY() + RandomUtils.uniform(World.RANDOM, 1, height - 1);
         door = new Door(new Position(x0, y0));
     }
 
@@ -105,7 +106,7 @@ public class Room {
         * It can also create a second connection randomly
         */
         connectRoomHelper(world, this, neighborRoom);
-        int n = RandomUtils.uniform(Game.RANDOM, 2);
+        int n = RandomUtils.uniform(World.RANDOM, 2);
         if (n == 1) {
             connectRoomHelper(world, neighborRoom, this);
         }
@@ -144,13 +145,13 @@ public class Room {
 
     public void makeShape() {
         /* Randomly chooses square or rectangle shaped room */
-        int tileNum = Game.RANDOM.nextInt(2);
+        int tileNum = World.RANDOM.nextInt(2);
         if (tileNum == 0) {
-            width = RandomUtils.uniform(Game.RANDOM, 4, 12);
+            width = RandomUtils.uniform(World.RANDOM, 4, 12);
             height = getWidth();
         } else {
-            width = RandomUtils.uniform(Game.RANDOM, 4, 12);
-            height = RandomUtils.uniform(Game.RANDOM, 4, 12);
+            width = RandomUtils.uniform(World.RANDOM, 4, 12);
+            height = RandomUtils.uniform(World.RANDOM, 4, 12);
         }
     }
 }
