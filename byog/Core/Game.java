@@ -4,9 +4,10 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.io.*;
 import java.util.Random;
 
-public class Game {
+public class Game implements Serializable{
     /* Create a pseudorandom world */
     private static long SEED;
     static Random RANDOM;
@@ -14,27 +15,40 @@ public class Game {
     private static int size;
     public static final int WIDTH = 100;
     public static final int HEIGHT = 55;
+    private static TETile[][] finalWorldFrame;
 
 
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
 
-    public static void processInput(String s) {
+
+
+    public static Long processInput(String input) {
+        Long seed;
         int i = 0;
-        while (i < s.length()) {
-            Object first = s.charAt(i);
-            if (first.equals("N") || first.equals("n")) {
-                String rest = s.substring(1);
-                SEED = Long.parseLong(rest);
-            } else {
-                String rest = s;
-                SEED = Long.parseLong(rest);
+        int cutoff = 0;
+        int end = input.length();
+        while (i < end) {
+            char current = input.charAt(i);
+            if (current == 'N' || current == 'n') {
+                cutoff = i + 1;
+            } else if (current == 'L' || current == 'l') {
+                cutoff = i + 1;
+            } else if (!Character.isDigit(current)) {
+                end = i;
             }
             i++;
         }
 
-        RANDOM = new Random(SEED);
+        seed = Long.parseLong(input.substring(cutoff, end));
+        System.out.println(seed);
+        return seed;
     }
+
+    public static void setRandom(Long seed) {
+        RANDOM = new Random(seed);
+    }
+
     public static void fillEmpty(TETile[][] world) {
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
@@ -67,7 +81,7 @@ public class Game {
     public static void findNeighbors() {
         for (Room room : rooms) {
             int neighborCount = room.getNeighborCount();
-            for (Room room2: rooms) {
+            for (Room room2 : rooms) {
                 Position pos1 = room.getDoor().getDoorP();
                 Position pos2 = room2.getDoor().getDoorP();
                 if ((Math.abs(pos1.getX() - pos2.getX()) < 10)
@@ -79,13 +93,60 @@ public class Game {
     }
 
     public static void generateHallways(TETile[][] world) {
-        for (Room room: rooms) {
-            for (Room neighborRoom: room.getNeighbors()) {
+        for (Room room : rooms) {
+            for (Room neighborRoom : room.getNeighbors()) {
                 room.connectRooms(world, neighborRoom);
             }
         }
     }
 
+    public static TETile[][] generateWorld(TERenderer ter, Long seed) {
+
+        TETile[][] world = new TETile[WIDTH][HEIGHT];
+        fillEmpty(world);
+        setRandom(seed);
+        generateRooms(world);
+        findNeighbors();
+        generateHallways(world);
+        return world;
+
+    }
+
+    public TETile[][] newGame(Long seed) {
+        ter.initialize(WIDTH, HEIGHT);
+        return generateWorld(ter, seed);
+    }
+
+/*
+    public static String makeWorldStringName(Long seed) {
+        String string1 = "world";
+        String string2 = seed.toString();
+        return string1 + string2;
+    }
+
+ */
+
+    public static void saveGame() throws IOException {
+        File f = new File("World.ser");
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
+        objectOutputStream.writeObject(finalWorldFrame);
+        objectOutputStream.close();
+
+    }
+
+    public static TETile[][] loadGame() throws IOException, ClassNotFoundException {
+        /*
+        File f = new File("World.ser");
+
+        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(f));
+        TETile[][] world = (TETile[][]) objectInputStream.readObject();
+        objectInputStream.close();
+        return world;
+
+         */
+        return finalWorldFrame;
+
+    }
 
 
     /**
@@ -103,17 +164,42 @@ public class Game {
      * world. However, the behavior is slightly different. After playing with "n123sss:q", the game
      * should save, and thus if we then called playWithInputString with the string "l", we'd expect
      * to get the exact same world back again, since this corresponds to loading the saved game.
+     *
      * @param input the input string to feed to your program
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
-        ter.initialize(WIDTH, HEIGHT);
-        Game.processInput(input);
-        TETile[][] world = new TETile[WIDTH][HEIGHT];
-        Game.fillEmpty(world);
-        Game.generateRooms(world);
-        Game.findNeighbors();
-        Game.generateHallways(world);
-        return world;
+        char first = input.charAt(0);
+
+        if (first == 'N' || first == 'n') {
+            Long seed = processInput(input);
+            finalWorldFrame = newGame(seed);
+            ter.renderFrame(finalWorldFrame);
+
+        } else if (first == 'L' || first == 'l') {
+            Long seed = processInput(input);
+            finalWorldFrame = newGame(seed);
+
+            try {
+                finalWorldFrame = loadGame();
+                ter.renderFrame(finalWorldFrame);
+            } catch (ClassNotFoundException | IOException e) {
+                System.out.println("World not found");
+            }
+
+
+        } else {
+            System.out.println("Need to enter a valid letter");
+            return null;
+        }
+
+        if (input.contains(":Q") || input.contains(":q")) {
+            try {
+                saveGame();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return finalWorldFrame;
     }
 }
