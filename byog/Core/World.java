@@ -31,7 +31,7 @@ public class World implements Serializable {
     }
 
     public void generateRooms(TETile[][] w, Random r) {
-        size = RandomUtils.uniform(r, 18, 24);
+        size = RandomUtils.uniform(r, 16, 22);
         rooms = new Room[size];
         int numRooms = 0;
         int count = 0;
