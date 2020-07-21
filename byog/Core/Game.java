@@ -20,9 +20,10 @@ public class Game {
     public static final int WIDTH = 100;
     public static final int HEIGHT = 55;
     private TETile[][] finalWorldFrame;
+    private World newWorld;
     private TERenderer ter = new TERenderer();
     private boolean gameOver;
-    private String seed;
+    private Long seed;
     private Player player1;
     /* Feel free to change the width and height. */
 
@@ -37,6 +38,7 @@ public class Game {
         StdDraw.clear(Color.BLACK);
         StdDraw.enableDoubleBuffering();
     }
+
 
     /**
      * Returns a seed from a string input.
@@ -60,7 +62,6 @@ public class Game {
             i++;
         }
         seed = Long.parseLong(input.substring(cutoff, end));
-        System.out.println(seed);
         return seed;
     }
 
@@ -70,8 +71,11 @@ public class Game {
      */
     public void newGame(Long seed) {
         StdDraw.clear();
-        World newWorld = new World(WIDTH, HEIGHT, seed);
+        System.out.println(seed);
+        newWorld = new World(WIDTH, HEIGHT, seed);
         finalWorldFrame = newWorld.generateWorld(ter, seed);
+        player1 = new Player(finalWorldFrame);
+
     }
 
     /**
@@ -84,6 +88,27 @@ public class Game {
                 FileInputStream fs = new FileInputStream(f);
                 ObjectInputStream os = new ObjectInputStream(fs);
                 finalWorldFrame = (TETile[][]) os.readObject();
+                os.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("file not found");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println(e);
+                System.exit(0);
+            } catch (ClassNotFoundException e) {
+                System.out.println("class not found");
+                System.exit(0);
+            }
+        }
+    }
+
+    private void loadPlayer() {
+        File f = new File("player.txt");
+        if (f.exists()) {
+            try {
+                FileInputStream fs = new FileInputStream(f);
+                ObjectInputStream os = new ObjectInputStream(fs);
+                player1 = (Player) os.readObject();
                 os.close();
             } catch (FileNotFoundException e) {
                 System.out.println("file not found");
@@ -120,6 +145,26 @@ public class Game {
         }
     }
 
+    private void savePlayer() {
+        File f = new File("Player.txt");
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fs = new FileOutputStream(f);
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(player1);
+            os.close();
+        }  catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
+    }
+
+
     /**
      * Draws text onto the screen.
      * @param s
@@ -144,6 +189,24 @@ public class Game {
 
         StdDraw.text(midWidth, midHeight, s);
         StdDraw.show();
+    }
+
+    private void showMousePosition() {
+        StdDraw.setFont(new Font("Monaco", Font.BOLD, 25));
+        int x = (int) StdDraw.mouseX();
+        int y = (int) StdDraw.mouseY();
+        TETile tile = finalWorldFrame[x][y];
+        if (tile == Tileset.FLOOR) {
+            StdDraw.text(5, 53, "Floor");
+        } else if (tile == Tileset.WALL) {
+            StdDraw.text(5, 53, "Wall");
+        } else if (tile == Tileset.PLAYER) {
+            StdDraw.text(5, 53, "Player");
+        } else if (tile == Tileset.NOTHING) {
+            StdDraw.text(5, 53, "Nothing");
+        }
+        StdDraw.show();
+
     }
 
     /**
@@ -188,45 +251,47 @@ public class Game {
         setUpMenu();
 
         while (!gameOver) {
-            if (!StdDraw.hasNextKeyTyped()) {
-                continue;
-            } else {
+            if (StdDraw.hasNextKeyTyped()) {
                 char key = Character.toLowerCase(StdDraw.nextKeyTyped());
-                switch (key){
+                switch (key) {
                     case 'n':
-                        seed = chooseSeed();
-                        ter.initialize(100, 55);
-                        newGame(processInput(seed));
-                        /*
-                        finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY()] = Tileset.PLAYER;
-
-                         */
+                        seed = processInput(chooseSeed());
+                        ter.initialize(WIDTH, HEIGHT);
+                        newGame(seed);
                         ter.renderFrame(finalWorldFrame);
+                        break;
                     case 'l':
-                        ter.initialize(100, 55);
+                        ter.initialize(WIDTH, HEIGHT);
                         loadWorld();
+                        loadPlayer();
                         ter.renderFrame(finalWorldFrame);
+                        break;
                     case ':':
                         saveWorld();
-                        gameOver = true;
-                        /*
+                        savePlayer();
+                        break;
                     case 'w':
-                        player1.movePlayer(finalWorldFrame);
+                        player1.moveUp(finalWorldFrame);
                         ter.renderFrame(finalWorldFrame);
-                    case 'a':
-                        player1.movePlayer(finalWorldFrame);
-                        ter.renderFrame(finalWorldFrame);
+                        break;
                     case 's':
-                        player1.movePlayer(finalWorldFrame);
+                        player1.moveDown(finalWorldFrame);
                         ter.renderFrame(finalWorldFrame);
+                        break;
+                    case 'a':
+                        player1.moveLeft(finalWorldFrame);
+                        ter.renderFrame(finalWorldFrame);
+                        break;
                     case 'd':
-                        player1.movePlayer(finalWorldFrame);
+                        player1.moveRight(finalWorldFrame);
                         ter.renderFrame(finalWorldFrame);
-                        
-                         */
-
+                        break;
+                    default:
+                        break;
                 }
             }
+
+
         }
     }
 

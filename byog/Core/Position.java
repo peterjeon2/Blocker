@@ -3,11 +3,14 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.io.Serializable;
+
 
 /**
 * Class for determining the position of a tile on the grid
  */
-public class Position {
+public class Position implements Serializable {
+    private static final long serialVersionUID = 123L;
     private int x;
     private int y;
 

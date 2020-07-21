@@ -14,17 +14,28 @@ public class Test {
 
 
 
-/*
+
+
+        /*
         TERenderer ter = new TERenderer();
         ter.initialize(100,55);
-        World world = new World(100, 55, Game.processInput("345"));
+        Game game = new Game();
+        game.newGame(Game.processInput("1234"));
+        TETile[][] world = World.generateWorld
+        /*
+        World world = new World(100, 55, Game.processInput("12345"));
         TETile[][] world2 = world.generateWorld(ter, Game.processInput("12345"));
+
         Player player = new Player();
         world2[player.getCurrPos().getX()][player.getCurrPos().getY()] = Tileset.PLAYER;
-        ter.renderFrame(world2);
 
+
+        ter.renderFrame(Game.finalWorldFrame);
 
  */
+
+
+
 
 
 

@@ -4,54 +4,77 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 
-public class Player {
+import java.io.Serializable;
+
+public class Player implements Serializable {
+    private static final long serialVersionUID = 123L;
     private Position prevPos;
     private Position currPos;
     private Position nextPos;
     private TETile avatar;
 
-    public Player() {
-        prevPos = new Position(20, 20);
+    public Player(TETile[][] world) {
         currPos = new Position(20, 20);
+        world[currPos.getX()][currPos.getY()] = Tileset.LOCKED_DOOR;
     }
 
     public Position getCurrPos() {
         return currPos;
     }
-    public void movePlayer(TETile[][] world) {
+
+
+    public void moveUp(TETile[][] world) {
         prevPos = currPos;
-        if (StdDraw.hasNextKeyTyped()) {
-            char key = Character.toLowerCase(StdDraw.nextKeyTyped());
-            switch (key) {
-                case 'w':
-                    nextPos = new Position(currPos.getX(), currPos.getY() + 1);
-                    if (checkNextPos(world, nextPos)) {
-                        currPos = nextPos;
-                        world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
-                    }
-                case 'a':
-                    nextPos = new Position(currPos.getX() - 1, currPos.getY());
-                    if (checkNextPos(world, nextPos)) {
-                        currPos = nextPos;
-                        world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
-                    }
-                case 's':
-                    nextPos = new Position(currPos.getX(), currPos.getY() - 1);
-                    if (checkNextPos(world, nextPos)) {
-                        currPos = nextPos;
-                        world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
-                    }
-                case 'd':
-                    nextPos = new Position(currPos.getX() + 1, currPos.getY());
-                    if (checkNextPos(world, nextPos)) {
-                        currPos = nextPos;
-                        world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
-                    }
-            }
+        nextPos = new Position(currPos.getX(), currPos.getY() + 1);
+        if (checkNextPos(world, nextPos)) {
+            currPos = nextPos;
+            world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
+            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
         }
     }
 
-    public boolean checkNextPos(TETile[][] world,  Position p){
-        return world[p.getX()][p.getY()]==Tileset.FLOOR;
+    public void moveLeft(TETile[][] world) {
+        prevPos = currPos;
+        nextPos = new Position(currPos.getX() - 1, currPos.getY());
+        if (checkNextPos(world, nextPos)) {
+            currPos = nextPos;
+            world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
+            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
         }
+    }
+
+    public void moveRight(TETile[][] world) {
+        prevPos = currPos;
+        nextPos = new Position(currPos.getX() + 1, currPos.getY());
+        if (checkNextPos(world, nextPos)) {
+            currPos = nextPos;
+            world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
+            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
+        }
+    }
+
+    public void moveDown(TETile[][] world) {
+        prevPos = currPos;
+        nextPos = new Position(currPos.getX(), currPos.getY() - 1);
+        if (checkNextPos(world, nextPos)) {
+            currPos = nextPos;
+            world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
+            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
+        }
+    }
+
+    private boolean checkNextPos(TETile[][] world,  Position p){
+        String tileType = world[p.getX()][p.getY()].description();
+        return tileType.equals("floor");
+    }
+
+
+    /*
+    private static void movePlayer(TETile[][] world, Position prev, Position curr, Position next) {
+        curr = next;
+        world[curr.getX()][curr.getY()] = Tileset.PLAYER;
+        world[prev.getX()][prev.getY()] = Tileset.FLOOR;
+    }
+
+     */
 }
