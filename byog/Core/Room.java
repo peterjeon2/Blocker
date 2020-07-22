@@ -23,7 +23,7 @@ public class Room {
     private int neighborCount;
 
     public Room() {
-        neighbors = new Room[3];
+        neighbors = new Room[4];
         neighborCount = 0;
         corners = new Position[4];
     }
@@ -60,7 +60,6 @@ public class Room {
     public int getHeight() {
         return height;
     }
-
 
     public void setDoor(Random random) {
         /* Creates a door in a room. A door is used as a starting

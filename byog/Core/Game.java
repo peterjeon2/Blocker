@@ -17,14 +17,16 @@ import java.util.Random;
 
 public class Game {
     /* Create a pseudorandom world */
-    public static final int WIDTH = 100;
-    public static final int HEIGHT = 55;
+    public static final int WIDTH = 80;
+    public static final int HEIGHT = 50;
     private TETile[][] finalWorldFrame;
     private World newWorld;
     private TERenderer ter = new TERenderer();
     private boolean gameOver;
     private Long seed;
     private Player player1;
+    private Position startPos;
+    private Position stairCase;
     /* Feel free to change the width and height. */
 
 
@@ -65,6 +67,10 @@ public class Game {
         return seed;
     }
 
+    public Long generateRandomSeed(){
+        return (long) (Math.random() * 1000000 + 1);
+    }
+
     /**
      * Starts a pseudorandomly generated new game.
      * @param seed
@@ -74,8 +80,9 @@ public class Game {
         System.out.println(seed);
         newWorld = new World(WIDTH, HEIGHT, seed);
         finalWorldFrame = newWorld.generateWorld(ter, seed);
-        player1 = new Player(finalWorldFrame);
-
+        startPos = newWorld.getPlayerStartPos();
+        stairCase = newWorld.getStairCase();
+        player1 = new Player(finalWorldFrame, startPos, stairCase);
     }
 
     /**
@@ -191,22 +198,24 @@ public class Game {
         StdDraw.show();
     }
 
-    private void showMousePosition() {
-        StdDraw.setFont(new Font("Monaco", Font.BOLD, 25));
-        int x = (int) StdDraw.mouseX();
-        int y = (int) StdDraw.mouseY();
-        TETile tile = finalWorldFrame[x][y];
-        if (tile == Tileset.FLOOR) {
-            StdDraw.text(5, 53, "Floor");
-        } else if (tile == Tileset.WALL) {
-            StdDraw.text(5, 53, "Wall");
-        } else if (tile == Tileset.PLAYER) {
-            StdDraw.text(5, 53, "Player");
-        } else if (tile == Tileset.NOTHING) {
-            StdDraw.text(5, 53, "Nothing");
-        }
-        StdDraw.show();
-
+    public void showMousePosition() {
+            StdDraw.setFont(new Font("Monaco", Font.BOLD, 25));
+            int x = (int) StdDraw.mouseX();
+            int y = (int) StdDraw.mouseY();
+            StdDraw.setXscale(0, 100);
+            StdDraw.setYscale(0, 55);
+            TETile tile = finalWorldFrame[x][y];
+            if (tile == Tileset.FLOOR) {
+                StdDraw.text(5, 53, "Floor");
+            } else if (tile == Tileset.WALL) {
+                StdDraw.text(5, 53, "Wall");
+            } else if (tile == Tileset.PLAYER) {
+                StdDraw.text(5, 53, "Player");
+            } else if (tile == Tileset.NOTHING) {
+                StdDraw.text(5, 53, "Nothing");
+            }
+            ter.renderFrame(finalWorldFrame);
+            StdDraw.show();
     }
 
     /**
@@ -215,11 +224,11 @@ public class Game {
     private void setUpMenu() {
         StdDraw.clear(Color.BLACK);
         StdDraw.setFont(new Font("Monaco", Font.BOLD, 60));
-        StdDraw.text(50, 40, "CS61B: THE GAME");
+        StdDraw.text(WIDTH/2, 40, "CS61B: THE GAME");
         StdDraw.setFont(new Font("Monaco", Font.BOLD, 30));
-        StdDraw.text(50, 25, "New Game (N)");
-        StdDraw.text(50, 23, "Load Game (L)");
-        StdDraw.text(50, 21, "Quit (Q)");
+        StdDraw.text(WIDTH/2, 25, "New Game (N)");
+        StdDraw.text(WIDTH/2, 23, "Load Game (L)");
+        StdDraw.text(WIDTH/2, 21, "Quit (Q)");
         StdDraw.show();
     }
 
@@ -230,7 +239,7 @@ public class Game {
         String seed = "";
         char key = ' ';
         StdDraw.clear(Color.BLACK);
-        StdDraw.text(50, 40, "Enter a Random Seed. Press S to start the game.");
+        StdDraw.text(WIDTH/2, 40, "Enter a Random Seed. Press S to start the game.");
         StdDraw.show();
 
         while (key != 's' || key != 's') {
@@ -256,12 +265,12 @@ public class Game {
                 switch (key) {
                     case 'n':
                         seed = processInput(chooseSeed());
-                        ter.initialize(WIDTH, HEIGHT);
+                        ter.initialize(WIDTH, HEIGHT, 0, -3);
                         newGame(seed);
                         ter.renderFrame(finalWorldFrame);
                         break;
                     case 'l':
-                        ter.initialize(WIDTH, HEIGHT);
+                        ter.initialize(WIDTH, HEIGHT,0, -3);
                         loadWorld();
                         loadPlayer();
                         ter.renderFrame(finalWorldFrame);
@@ -271,19 +280,35 @@ public class Game {
                         savePlayer();
                         break;
                     case 'w':
-                        player1.moveUp(finalWorldFrame);
+                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() + 1].description().equals("tree")){
+                            newGame(generateRandomSeed());
+                        } else {
+                            player1.moveUp(finalWorldFrame);
+                        }
                         ter.renderFrame(finalWorldFrame);
                         break;
                     case 's':
-                        player1.moveDown(finalWorldFrame);
+                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() - 1].description().equals("tree")){
+                            newGame(generateRandomSeed());
+                        } else {
+                            player1.moveDown(finalWorldFrame);
+                        }
                         ter.renderFrame(finalWorldFrame);
                         break;
                     case 'a':
-                        player1.moveLeft(finalWorldFrame);
+                        if (finalWorldFrame[player1.getCurrPos().getX() - 1][player1.getCurrPos().getY()].description().equals("tree")){
+                            newGame(generateRandomSeed());
+                        } else {
+                            player1.moveLeft(finalWorldFrame);
+                        }
                         ter.renderFrame(finalWorldFrame);
                         break;
                     case 'd':
-                        player1.moveRight(finalWorldFrame);
+                        if (finalWorldFrame[player1.getCurrPos().getX() + 1][player1.getCurrPos().getY()].description().equals("tree")){
+                            newGame(generateRandomSeed());
+                        } else {
+                            player1.moveRight(finalWorldFrame);
+                        }
                         ter.renderFrame(finalWorldFrame);
                         break;
                     default:

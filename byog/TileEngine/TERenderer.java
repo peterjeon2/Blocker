@@ -1,5 +1,6 @@
 package byog.TileEngine;
 
+import byog.Core.Game;
 import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.Color;

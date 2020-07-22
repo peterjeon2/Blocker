@@ -15,6 +15,9 @@ public class World implements Serializable {
     private Random random;
     private Room[] rooms;
     private int size;
+    private Position playerStartPos;
+    private Position stairCase;
+
 
     public World(int w, int h, Long seed) {
         width = w;
@@ -31,7 +34,7 @@ public class World implements Serializable {
     }
 
     public void generateRooms(TETile[][] w, Random r) {
-        size = RandomUtils.uniform(r, 16, 22);
+        size = RandomUtils.uniform(r, 15, 22);
         rooms = new Room[size];
         int numRooms = 0;
         int count = 0;
@@ -49,6 +52,8 @@ public class World implements Serializable {
                 }
             }
         }
+        playerStartPos = rooms[1].getDoor().getDoorP();
+        stairCase = rooms[size - 1].getDoor().getDoorP();
     }
 
     public void findNeighbors() {
@@ -56,8 +61,8 @@ public class World implements Serializable {
             for (Room room2 : rooms) {
                 Position pos1 = room.getDoor().getDoorP();
                 Position pos2 = room2.getDoor().getDoorP();
-                if ((Math.abs(pos1.getX() - pos2.getX()) < 10)
-                        && (Math.abs(pos1.getY() - pos2.getY()) < 10)) {
+                if ((Math.abs(pos1.getX() - pos2.getX()) < 12)
+                        && (Math.abs(pos1.getY() - pos2.getY()) < 12)) {
                     room.addNeighbor(room2);
                 }
             }
@@ -83,5 +88,13 @@ public class World implements Serializable {
 
     public TETile[][] getWorld() {
         return world;
+    }
+
+    public Position getPlayerStartPos() {
+        return playerStartPos;
+    }
+
+    public Position getStairCase() {
+        return stairCase;
     }
 }

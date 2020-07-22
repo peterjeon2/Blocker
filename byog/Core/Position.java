@@ -38,10 +38,10 @@ public class Position implements Serializable {
             if (world[p.getX()][p.getY()] != Tileset.NOTHING) {
                 throw new RuntimeException("Room can't overlap with another room.");
             }
-            if (p.getX() <= 5
-                    || p.getY() <= 5
-                    || p.getX() > Game.WIDTH - 5
-                    || p.getY() > Game.HEIGHT - 5) {
+            if (p.getX() <= 3
+                    || p.getX() > Game.WIDTH - 3
+                    || p.getY() < 5
+                    || p.getY() > Game.HEIGHT - 2) {
                 throw new RuntimeException("Room can't be out of bounds");
             }
         }

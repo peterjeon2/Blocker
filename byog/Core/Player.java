@@ -11,17 +11,19 @@ public class Player implements Serializable {
     private Position prevPos;
     private Position currPos;
     private Position nextPos;
+    private Position stairCase;
     private TETile avatar;
 
-    public Player(TETile[][] world) {
-        currPos = new Position(20, 20);
-        world[currPos.getX()][currPos.getY()] = Tileset.LOCKED_DOOR;
+    public Player(TETile[][] world, Position startPos, Position stair) {
+        currPos = startPos;
+        world[currPos.getX()][currPos.getY()] = Tileset.PLAYER;
+        stairCase = stair;
+        world[stairCase.getX()][stairCase.getY()] = Tileset.TREE;
     }
 
     public Position getCurrPos() {
         return currPos;
     }
-
 
     public void moveUp(TETile[][] world) {
         prevPos = currPos;
@@ -65,9 +67,8 @@ public class Player implements Serializable {
 
     private boolean checkNextPos(TETile[][] world,  Position p){
         String tileType = world[p.getX()][p.getY()].description();
-        return tileType.equals("floor");
+        return tileType.equals("floor") || tileType.equals("tree");
     }
-
 
     /*
     private static void movePlayer(TETile[][] world, Position prev, Position curr, Position next) {
