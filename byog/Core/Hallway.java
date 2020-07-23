@@ -9,6 +9,13 @@ import byog.TileEngine.Tileset;
  */
 
 public class Hallway {
+
+    /**
+     * Draws a horizontal hallway, connecting a room to a corner point or another room.
+     * @param world
+     * @param conPos
+     * @param startPos
+     */
     public static void drawHorizontalHallway(TETile[][] world, Position conPos, Position startPos) {
         int width = Math.abs(conPos.getX() - startPos.getX());
         int height = 3;
@@ -35,6 +42,12 @@ public class Hallway {
         }
     }
 
+    /**
+     * Draws a vertical hallway, connecting a room to a corner point or another room.
+     * @param world
+     * @param conPos
+     * @param startPos
+     */
     public static void drawVerticalHallway(TETile[][] world, Position conPos, Position startPos) {
         int height = Math.abs(conPos.getY() - startPos.getY());
         int width = 3;
@@ -61,6 +74,11 @@ public class Hallway {
         }
     }
 
+    /**
+     * Draws a corner hallway. A 3x3 hallway with the connecting point being a floor tile.
+     * @param world
+     * @param conPos
+     */
     public static void drawCornerHallway(TETile[][] world, Position conPos) {
         Position p = new Position(conPos.getX() - 1, conPos.getY() - 1);
         for (int x = 0; x < 3; x += 1) {
@@ -77,6 +95,13 @@ public class Hallway {
         world[conPos.getX()][conPos.getY()] = Tileset.FLOOR;
     }
 
+    /**
+     * Utilizes the three helper functions above to draw a hallway between two rooms.
+     * @param world
+     * @param conPos
+     * @param room
+     * @param room2
+     */
     public static void drawHallways(TETile[][] world, Position conPos, Room room, Room room2) {
         drawCornerHallway(world, conPos);
         drawHorizontalHallway(world, conPos, room2.getDoor().getDoorP());

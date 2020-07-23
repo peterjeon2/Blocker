@@ -14,6 +14,7 @@ public class World implements Serializable {
     private TETile[][] world;
     private Random random;
     private Room[] rooms;
+    private NPC[] npcs;
     private int size;
     private Position playerStartPos;
     private Position stairCase;
@@ -34,7 +35,7 @@ public class World implements Serializable {
     }
 
     public void generateRooms(TETile[][] w, Random r) {
-        size = RandomUtils.uniform(r, 15, 22);
+        size = RandomUtils.uniform(r, 15, 25);
         rooms = new Room[size];
         int numRooms = 0;
         int count = 0;
@@ -52,8 +53,7 @@ public class World implements Serializable {
                 }
             }
         }
-        playerStartPos = rooms[1].getDoor().getDoorP();
-        stairCase = rooms[size - 1].getDoor().getDoorP();
+        playerStartPos = rooms[0].getDoor().getDoorP();
     }
 
     public void findNeighbors() {
@@ -61,8 +61,8 @@ public class World implements Serializable {
             for (Room room2 : rooms) {
                 Position pos1 = room.getDoor().getDoorP();
                 Position pos2 = room2.getDoor().getDoorP();
-                if ((Math.abs(pos1.getX() - pos2.getX()) < 12)
-                        && (Math.abs(pos1.getY() - pos2.getY()) < 12)) {
+                if ((Math.abs(pos1.getX() - pos2.getX()) < 8)
+                        && (Math.abs(pos1.getY() - pos2.getY()) < 8)) {
                     room.addNeighbor(room2);
                 }
             }
@@ -75,6 +75,16 @@ public class World implements Serializable {
                 room.connectRooms(w, neighborRoom, r);
             }
         }
+    }
+
+    public NPC[] generateNPCS(TETile[][] w, int level) {
+        npcs = new NPC[level * 2];
+        for (int i = 0; i < level * 2; i += 1) {
+            npcs[i] = new NPC(w, rooms[i +1].getDoor().getDoorP());
+        }
+        stairCase = rooms[size - 1].getDoor().getDoorP();
+        world[stairCase.getX()][stairCase.getY()] = Tileset.LOCKED_DOOR;
+        return npcs;
     }
 
     public TETile[][] generateWorld(TERenderer ter, Long seed) {
@@ -96,5 +106,9 @@ public class World implements Serializable {
 
     public Position getStairCase() {
         return stairCase;
+    }
+
+    public NPC[] getNPCS() {
+        return npcs;
     }
 }

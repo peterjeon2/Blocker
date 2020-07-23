@@ -61,9 +61,9 @@ public class Room {
         return height;
     }
 
-    public void setDoor(Random random) {
-        /* Creates a door in a room. A door is used as a starting
+    /* Creates a door in a room. A door is used as a starting
         position to connect to another room's door. */
+    public void setDoor(Random random) {
         int x0 = getBotLeftCorn().getX() + RandomUtils.uniform(random, 1, width - 1);
         int y0 = getBotLeftCorn().getY() + RandomUtils.uniform(random, 1, height - 1);
         door = new Door(new Position(x0, y0));

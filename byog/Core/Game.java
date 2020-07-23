@@ -27,7 +27,7 @@ public class Game {
     private Player player1;
     private Position startPos;
     private Position stairCase;
-    /* Feel free to change the width and height. */
+    private NPC[] enemies;
 
 
     public Game() {
@@ -75,14 +75,29 @@ public class Game {
      * Starts a pseudorandomly generated new game.
      * @param seed
      */
-    public void newGame(Long seed) {
+    public void newGame(Long seed, int level) {
         StdDraw.clear();
         System.out.println(seed);
         newWorld = new World(WIDTH, HEIGHT, seed);
         finalWorldFrame = newWorld.generateWorld(ter, seed);
         startPos = newWorld.getPlayerStartPos();
         stairCase = newWorld.getStairCase();
-        player1 = new Player(finalWorldFrame, startPos, stairCase);
+        player1 = new Player(finalWorldFrame, startPos);
+        enemies = newWorld.generateNPCS(finalWorldFrame, level);
+    }
+
+    private void makeStairCase(Long seed) {
+        while (true) {
+            int x = RandomUtils.uniform(new Random(seed), 5 , WIDTH - 5);
+            int y = RandomUtils.uniform(new Random(seed), 5, HEIGHT - 5);
+            if (finalWorldFrame[x][y].description().equals("nothing")) {
+                System.out.println(x);
+                System.out.println(y);
+                stairCase = new Position(x, y);
+                finalWorldFrame[x][y] = Tileset.LOCKED_DOOR;
+                break;
+            }
+        }
     }
 
     /**
@@ -252,12 +267,20 @@ public class Game {
         return seed;
     }
 
+    public void moveNPCS() {
+        for (NPC npc: enemies){
+            npc.moveNPCS(finalWorldFrame, player1);
+        }
+    }
+
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
         gameOver = false;
         setUpMenu();
+        int level = 1;
+
 
         while (!gameOver) {
             if (StdDraw.hasNextKeyTyped()) {
@@ -266,7 +289,7 @@ public class Game {
                     case 'n':
                         seed = processInput(chooseSeed());
                         ter.initialize(WIDTH, HEIGHT, 0, -3);
-                        newGame(seed);
+                        newGame(seed, level);
                         ter.renderFrame(finalWorldFrame);
                         break;
                     case 'l':
@@ -279,44 +302,61 @@ public class Game {
                         saveWorld();
                         savePlayer();
                         break;
+                    default:
+                        break;
+                }
+                play();
+
+            }
+
+        }
+    }
+
+    private void play() {
+        int level = 2;
+        while (!gameOver) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char key = Character.toLowerCase(StdDraw.nextKeyTyped());
+                moveNPCS();
+                switch (key) {
                     case 'w':
-                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() + 1].description().equals("tree")){
-                            newGame(generateRandomSeed());
+                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() + 1].description().equals("locked door")) {
+                            newGame(generateRandomSeed(), level);
+                            level++;
                         } else {
                             player1.moveUp(finalWorldFrame);
                         }
-                        ter.renderFrame(finalWorldFrame);
                         break;
                     case 's':
-                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() - 1].description().equals("tree")){
-                            newGame(generateRandomSeed());
+                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() - 1].description().equals("locked door")) {
+                            newGame(generateRandomSeed(), level);
+                            level++;
                         } else {
                             player1.moveDown(finalWorldFrame);
                         }
-                        ter.renderFrame(finalWorldFrame);
                         break;
                     case 'a':
-                        if (finalWorldFrame[player1.getCurrPos().getX() - 1][player1.getCurrPos().getY()].description().equals("tree")){
-                            newGame(generateRandomSeed());
+                        if (finalWorldFrame[player1.getCurrPos().getX() - 1][player1.getCurrPos().getY()].description().equals("locked door")) {
+                            newGame(generateRandomSeed(), level);
+                            level++;
                         } else {
                             player1.moveLeft(finalWorldFrame);
                         }
-                        ter.renderFrame(finalWorldFrame);
                         break;
                     case 'd':
-                        if (finalWorldFrame[player1.getCurrPos().getX() + 1][player1.getCurrPos().getY()].description().equals("tree")){
-                            newGame(generateRandomSeed());
+                        if (finalWorldFrame[player1.getCurrPos().getX() + 1][player1.getCurrPos().getY()].description().equals("locked door")) {
+                            newGame(generateRandomSeed(), level);
+                            level++;
                         } else {
                             player1.moveRight(finalWorldFrame);
                         }
-                        ter.renderFrame(finalWorldFrame);
                         break;
                     default:
                         break;
                 }
+                ter.renderFrame(finalWorldFrame);
+
             }
-
-
         }
     }
 
@@ -338,7 +378,7 @@ public class Game {
         char first = input.charAt(0);
         if (first == 'N' || first == 'n') {
             Long seed = processInput(input);
-            newGame(seed);
+            newGame(seed, 1);
         } else if (first == 'L' || first == 'l') {
             loadWorld();
         }
