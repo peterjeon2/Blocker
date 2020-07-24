@@ -3,7 +3,9 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
-public class NPC extends Player{
+import java.io.Serializable;
+
+public class NPC implements Serializable{
     private static final long serialVersionUID = 123L;
     private Position prevPos;
     private Position currPos;
@@ -22,7 +24,6 @@ public class NPC extends Player{
      * @param startPos
      */
     public NPC(TETile[][] world, Position startPos) {
-        super(world, startPos);
         currPos = startPos;
         tile = Tileset.UNLOCKED_DOOR;
         world[currPos.getX()][currPos.getY()] = tile;
@@ -82,31 +83,35 @@ public class NPC extends Player{
             world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
         }
     }
-    public void moveNPCS(TETile[][] world, Player p1) {
+    public Boolean moveNPCS(TETile[][] world, Player p1) {
         String direction = calcPath(currPos, p1.getCurrPos());
         switch (direction) {
             case "up":
-                if (checkNextPos(world, new Position(currPos.getX(), currPos.getY() + 1))) {
+                nextPos = new Position(currPos.getX(), currPos.getY() + 1);
+                if (checkNextPos(world, nextPos) && canMoveUp) {
                     moveUp(world);
                 }
-                break;
+                return collidesWithPlayer(world, nextPos);
             case "right":
-                if (checkNextPos(world, new Position(currPos.getX() + 1, currPos.getY()))) {
+                nextPos = new Position(currPos.getX() + 1, currPos.getY());
+                if (checkNextPos(world, nextPos) && canMoveRight) {
                     moveRight(world);
                 }
-                break;
+                return collidesWithPlayer(world, nextPos);
             case "down":
-                if (checkNextPos(world, new Position(currPos.getX(), currPos.getY() - 1)) && canMoveDown) {
+                nextPos = new Position(currPos.getX(), currPos.getY() - 1);
+                if (checkNextPos(world, nextPos) && canMoveDown) {
                     moveDown(world);
                 }
-                break;
+                return collidesWithPlayer(world, nextPos);
             case "left":
-                if (checkNextPos(world, new Position(currPos.getX() - 1, currPos.getY())) && canMoveLeft) {
+                nextPos = new Position(currPos.getX() - 1, currPos.getY());
+                if (checkNextPos(world, nextPos) && canMoveLeft) {
                     moveLeft(world);
                 }
-                break;
+                return collidesWithPlayer(world, nextPos);
             default:
-                break;
+                return false;
         }
     }
 
@@ -114,6 +119,12 @@ public class NPC extends Player{
         String tileType = world[p.getX()][p.getY()].description();
         return tileType.equals("floor");
     }
+
+    public boolean collidesWithPlayer(TETile[][] world, Position p) {
+        String tileType = world[p.getX()][p.getY()].description();
+        return tileType.equals("floor") || tileType.equals("player");
+    }
+
 
     public String calcPath(Position npcPos, Position playerPos) {
         if (playerPos.getX() - npcPos.getX() > 0) {

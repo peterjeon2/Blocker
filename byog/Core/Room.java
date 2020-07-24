@@ -3,6 +3,7 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Random;
  * randomly generated rooms in the world.
  * The game class calls these methods to build out the world.
  */
-public class Room {
+public class Room implements Serializable {
     private int width;
     private int height;
     private Position botLeftCorn;

@@ -28,6 +28,7 @@ public class Game {
     private Position startPos;
     private Position stairCase;
     private NPC[] enemies;
+    private int yOffSet;
 
 
     public Game() {
@@ -86,19 +87,6 @@ public class Game {
         enemies = newWorld.generateNPCS(finalWorldFrame, level);
     }
 
-    private void makeStairCase(Long seed) {
-        while (true) {
-            int x = RandomUtils.uniform(new Random(seed), 5 , WIDTH - 5);
-            int y = RandomUtils.uniform(new Random(seed), 5, HEIGHT - 5);
-            if (finalWorldFrame[x][y].description().equals("nothing")) {
-                System.out.println(x);
-                System.out.println(y);
-                stairCase = new Position(x, y);
-                finalWorldFrame[x][y] = Tileset.LOCKED_DOOR;
-                break;
-            }
-        }
-    }
 
     /**
      * Loads the most recent saved state of a game.
@@ -131,6 +119,27 @@ public class Game {
                 FileInputStream fs = new FileInputStream(f);
                 ObjectInputStream os = new ObjectInputStream(fs);
                 player1 = (Player) os.readObject();
+                os.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("file not found");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println(e);
+                System.exit(0);
+            } catch (ClassNotFoundException e) {
+                System.out.println("class not found");
+                System.exit(0);
+            }
+        }
+    }
+
+    private void loadNPCS() {
+        File f = new File("Npc.txt");
+        if (f.exists()) {
+            try {
+                FileInputStream fs = new FileInputStream(f);
+                ObjectInputStream os = new ObjectInputStream(fs);
+                enemies = (NPC[]) os.readObject();
                 os.close();
             } catch (FileNotFoundException e) {
                 System.out.println("file not found");
@@ -186,6 +195,25 @@ public class Game {
         }
     }
 
+    private void saveNPCS() {
+        File f = new File("Npc.txt");
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fs = new FileOutputStream(f);
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(enemies);
+            os.close();
+        }  catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
+    }
+
 
     /**
      * Draws text onto the screen.
@@ -194,43 +222,25 @@ public class Game {
     public void drawFrame(String s) {
         int midWidth = WIDTH / 2;
         int midHeight = HEIGHT / 2;
-
         StdDraw.clear();
         StdDraw.clear(Color.black);
-
-    /*
-        if (!gameOver) {
-            Font smallFont = new Font("Monaco", Font.BOLD, 20);
-            StdDraw.setFont(smallFont);
-            StdDraw.textLeft(1, height - 1, "Round: " + round);
-            StdDraw.text(midWidth, height - 1, playerTurn ? "Type!" : "Watch!");
-            StdDraw.textRight(width - 1, height - 1, ENCOURAGEMENT[round % ENCOURAGEMENT.length]);
-            StdDraw.line(0, height - 2, width, height - 2);
-        }
-     */
-
         StdDraw.text(midWidth, midHeight, s);
         StdDraw.show();
     }
 
-    public void showMousePosition() {
-            StdDraw.setFont(new Font("Monaco", Font.BOLD, 25));
+    private String MousePosition() {
             int x = (int) StdDraw.mouseX();
             int y = (int) StdDraw.mouseY();
-            StdDraw.setXscale(0, 100);
-            StdDraw.setYscale(0, 55);
-            TETile tile = finalWorldFrame[x][y];
-            if (tile == Tileset.FLOOR) {
-                StdDraw.text(5, 53, "Floor");
-            } else if (tile == Tileset.WALL) {
-                StdDraw.text(5, 53, "Wall");
-            } else if (tile == Tileset.PLAYER) {
-                StdDraw.text(5, 53, "Player");
-            } else if (tile == Tileset.NOTHING) {
-                StdDraw.text(5, 53, "Nothing");
-            }
-            ter.renderFrame(finalWorldFrame);
-            StdDraw.show();
+            try {
+                TETile tile = finalWorldFrame[x][y + yOffSet];
+                return "Tile: " + tile.description();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return "";
+        }
+    }
+
+    private String level(int n) {
+        return "Level: " + n;
     }
 
     /**
@@ -267,9 +277,15 @@ public class Game {
         return seed;
     }
 
-    public void moveNPCS() {
+    private void loseScreen(int n) {
+        drawFrame("YOU LOSE. YOU REACHED LEVEL " + n);
+    }
+
+    private void moveNPCS() {
         for (NPC npc: enemies){
-            npc.moveNPCS(finalWorldFrame, player1);
+            if (npc.moveNPCS(finalWorldFrame, player1)) {
+                gameOver = true;
+            }
         }
     }
 
@@ -279,8 +295,8 @@ public class Game {
     public void playWithKeyboard() {
         gameOver = false;
         setUpMenu();
+        yOffSet = 3;
         int level = 1;
-
 
         while (!gameOver) {
             if (StdDraw.hasNextKeyTyped()) {
@@ -288,37 +304,39 @@ public class Game {
                 switch (key) {
                     case 'n':
                         seed = processInput(chooseSeed());
-                        ter.initialize(WIDTH, HEIGHT, 0, -3);
+                        ter.initialize(WIDTH, HEIGHT + yOffSet, 0, -yOffSet);
                         newGame(seed, level);
-                        ter.renderFrame(finalWorldFrame);
                         break;
                     case 'l':
-                        ter.initialize(WIDTH, HEIGHT,0, -3);
+                        ter.initialize(WIDTH, HEIGHT + yOffSet,0, -yOffSet);
                         loadWorld();
                         loadPlayer();
-                        ter.renderFrame(finalWorldFrame);
-                        break;
-                    case ':':
-                        saveWorld();
-                        savePlayer();
+                        loadNPCS();
                         break;
                     default:
                         break;
                 }
+                ter.renderFrame(finalWorldFrame, MousePosition(), level(level));
                 play();
-
             }
-
         }
     }
 
     private void play() {
-        int level = 2;
+        int level = 1;
         while (!gameOver) {
+            ter.renderFrame(finalWorldFrame, MousePosition(), level(level));
             if (StdDraw.hasNextKeyTyped()) {
                 char key = Character.toLowerCase(StdDraw.nextKeyTyped());
                 moveNPCS();
                 switch (key) {
+                    case ':':
+                        System.out.println("e");
+                        saveWorld();
+                        savePlayer();
+                        saveNPCS();
+                        System.exit(0);
+                        break;
                     case 'w':
                         if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() + 1].description().equals("locked door")) {
                             newGame(generateRandomSeed(), level);
@@ -354,10 +372,10 @@ public class Game {
                     default:
                         break;
                 }
-                ter.renderFrame(finalWorldFrame);
-
             }
         }
+        loseScreen(level);
+
     }
 
     /**

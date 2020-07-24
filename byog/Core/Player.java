@@ -97,7 +97,7 @@ public class Player implements Serializable {
      * @param p
      * @return
      */
-    public boolean checkNextPos(TETile[][] world,  Position p){
+    public boolean checkNextPos(TETile[][] world,  Position p) {
         String tileType = world[p.getX()][p.getY()].description();
         return tileType.equals("floor") || tileType.equals("locked door");
     }
