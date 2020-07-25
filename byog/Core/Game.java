@@ -4,16 +4,14 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
-
 import java.awt.*;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.File;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.util.Random;
+import java.util.HashMap;
 
 public class Game {
     /* Create a pseudorandom world */
@@ -28,8 +26,10 @@ public class Game {
     private Position startPos;
     private Position stairCase;
     private NPC[] enemies;
+    private HashMap<String, Integer> highScores;
     private int yOffSet;
-
+    private int specialMoves = 0;
+    private int level;
 
     public Game() {
         StdDraw.setCanvasSize(WIDTH * 16, HEIGHT * 16);
@@ -42,9 +42,9 @@ public class Game {
         StdDraw.enableDoubleBuffering();
     }
 
-
     /**
      * Returns a seed from a string input.
+     *
      * @param input
      * @return
      */
@@ -68,12 +68,13 @@ public class Game {
         return seed;
     }
 
-    public Long generateRandomSeed(){
+    public Long generateRandomSeed() {
         return (long) (Math.random() * 1000000 + 1);
     }
 
     /**
      * Starts a pseudorandomly generated new game.
+     *
      * @param seed
      */
     public void newGame(Long seed, int level) {
@@ -87,70 +88,35 @@ public class Game {
         enemies = newWorld.generateNPCS(finalWorldFrame, level);
     }
 
-
     /**
      * Loads the most recent saved state of a game.
      */
     private void loadWorld() {
-        File f = new File("world.txt");
-        if (f.exists()) {
-            try {
-                FileInputStream fs = new FileInputStream(f);
-                ObjectInputStream os = new ObjectInputStream(fs);
-                finalWorldFrame = (TETile[][]) os.readObject();
-                os.close();
-            } catch (FileNotFoundException e) {
-                System.out.println("file not found");
-                System.exit(0);
-            } catch (IOException e) {
-                System.out.println(e);
-                System.exit(0);
-            } catch (ClassNotFoundException e) {
-                System.out.println("class not found");
-                System.exit(0);
-            }
-        }
-    }
-
-    private void loadPlayer() {
-        File f = new File("player.txt");
-        if (f.exists()) {
-            try {
-                FileInputStream fs = new FileInputStream(f);
-                ObjectInputStream os = new ObjectInputStream(fs);
-                player1 = (Player) os.readObject();
-                os.close();
-            } catch (FileNotFoundException e) {
-                System.out.println("file not found");
-                System.exit(0);
-            } catch (IOException e) {
-                System.out.println(e);
-                System.exit(0);
-            } catch (ClassNotFoundException e) {
-                System.out.println("class not found");
-                System.exit(0);
-            }
-        }
-    }
-
-    private void loadNPCS() {
-        File f = new File("Npc.txt");
-        if (f.exists()) {
-            try {
-                FileInputStream fs = new FileInputStream(f);
-                ObjectInputStream os = new ObjectInputStream(fs);
-                enemies = (NPC[]) os.readObject();
-                os.close();
-            } catch (FileNotFoundException e) {
-                System.out.println("file not found");
-                System.exit(0);
-            } catch (IOException e) {
-                System.out.println(e);
-                System.exit(0);
-            } catch (ClassNotFoundException e) {
-                System.out.println("class not found");
-                System.exit(0);
-            }
+        try {
+            ObjectInputStream os = new ObjectInputStream(new FileInputStream("world.txt"));
+            ObjectInputStream os2 = new ObjectInputStream(new FileInputStream("player.txt"));
+            ObjectInputStream os3 = new ObjectInputStream(new FileInputStream("NPCs.txt"));
+            ObjectInputStream os4 = new ObjectInputStream(new FileInputStream("level.txt"));
+            ObjectInputStream os5 = new ObjectInputStream(new FileInputStream("specialMoves.txt"));
+            finalWorldFrame = (TETile[][]) os.readObject();
+            player1 = (Player) os2.readObject();
+            enemies = (NPC[]) os3.readObject();
+            level = (Integer) os4.readObject();
+            specialMoves = (Integer) os5.readObject();
+            os.close();
+            os2.close();
+            os3.close();
+            os4.close();
+            os5.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
+        } catch (ClassNotFoundException e) {
+            System.out.println("class not found");
+            System.exit(0);
         }
     }
 
@@ -158,16 +124,23 @@ public class Game {
      * Saves game state through serialization.
      */
     private void saveWorld() {
-        File f = new File("world.txt");
         try {
-            if (!f.exists()) {
-                f.createNewFile();
-            }
-            FileOutputStream fs = new FileOutputStream(f);
-            ObjectOutputStream os = new ObjectOutputStream(fs);
+            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream("world.txt"));
             os.writeObject(finalWorldFrame);
+            ObjectOutputStream os2 = new ObjectOutputStream(new FileOutputStream("player.txt"));
+            os2.writeObject(player1);
+            ObjectOutputStream os3 = new ObjectOutputStream(new FileOutputStream("NPCs.txt"));
+            os3.writeObject(enemies);
+            ObjectOutputStream os4 = new ObjectOutputStream(new FileOutputStream("level.txt"));
+            os4.writeObject(level);
+            ObjectOutputStream os5 = new ObjectOutputStream(new FileOutputStream("specialMoves.txt"));
+            os5.writeObject(specialMoves);
             os.close();
-        }  catch (FileNotFoundException e) {
+            os2.close();
+            os3.close();
+            os4.close();
+            os5.close();
+        } catch (FileNotFoundException e) {
             System.out.println("file not found");
             System.exit(0);
         } catch (IOException e) {
@@ -175,48 +148,10 @@ public class Game {
             System.exit(0);
         }
     }
-
-    private void savePlayer() {
-        File f = new File("Player.txt");
-        try {
-            if (!f.exists()) {
-                f.createNewFile();
-            }
-            FileOutputStream fs = new FileOutputStream(f);
-            ObjectOutputStream os = new ObjectOutputStream(fs);
-            os.writeObject(player1);
-            os.close();
-        }  catch (FileNotFoundException e) {
-            System.out.println("file not found");
-            System.exit(0);
-        } catch (IOException e) {
-            System.out.println(e);
-            System.exit(0);
-        }
-    }
-
-    private void saveNPCS() {
-        File f = new File("Npc.txt");
-        try {
-            if (!f.exists()) {
-                f.createNewFile();
-            }
-            FileOutputStream fs = new FileOutputStream(f);
-            ObjectOutputStream os = new ObjectOutputStream(fs);
-            os.writeObject(enemies);
-            os.close();
-        }  catch (FileNotFoundException e) {
-            System.out.println("file not found");
-            System.exit(0);
-        } catch (IOException e) {
-            System.out.println(e);
-            System.exit(0);
-        }
-    }
-
 
     /**
      * Draws text onto the screen.
+     *
      * @param s
      */
     public void drawFrame(String s) {
@@ -229,18 +164,22 @@ public class Game {
     }
 
     private String MousePosition() {
-            int x = (int) StdDraw.mouseX();
-            int y = (int) StdDraw.mouseY();
-            try {
-                TETile tile = finalWorldFrame[x][y + yOffSet];
-                return "Tile: " + tile.description();
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return "";
+        int x = (int) StdDraw.mouseX();
+        int y = (int) StdDraw.mouseY();
+        try {
+            TETile tile = finalWorldFrame[x][y + yOffSet];
+            return "Tile: " + tile.description();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return "Tile: ";
         }
     }
 
-    private String level(int n) {
+    private String displayLevel(int n) {
         return "Level: " + n;
+    }
+
+    private String displaySpecialMoves(int n) {
+        return "Moves Available: " + n;
     }
 
     /**
@@ -249,11 +188,11 @@ public class Game {
     private void setUpMenu() {
         StdDraw.clear(Color.BLACK);
         StdDraw.setFont(new Font("Monaco", Font.BOLD, 60));
-        StdDraw.text(WIDTH/2, 40, "CS61B: THE GAME");
+        StdDraw.text(WIDTH / 2, 40, "CS61B: THE GAME");
         StdDraw.setFont(new Font("Monaco", Font.BOLD, 30));
-        StdDraw.text(WIDTH/2, 25, "New Game (N)");
-        StdDraw.text(WIDTH/2, 23, "Load Game (L)");
-        StdDraw.text(WIDTH/2, 21, "Quit (Q)");
+        StdDraw.text(WIDTH / 2, 25, "New Game (N)");
+        StdDraw.text(WIDTH / 2, 23, "Load Game (L)");
+        StdDraw.text(WIDTH / 2, 21, "Quit (Q)");
         StdDraw.show();
     }
 
@@ -264,9 +203,9 @@ public class Game {
         String seed = "";
         char key = ' ';
         StdDraw.clear(Color.BLACK);
-        StdDraw.text(WIDTH/2, 40, "Enter a Random Seed. Press S to start the game.");
+        StdDraw.text(WIDTH / 2, 40, "Enter a Random Seed. Press S to start the game.");
+        StdDraw.text(WIDTH / 2, 37, "It needs to be a valid number.");
         StdDraw.show();
-
         while (key != 's' || key != 's') {
             if (StdDraw.hasNextKeyTyped()) {
                 key = StdDraw.nextKeyTyped();
@@ -278,11 +217,24 @@ public class Game {
     }
 
     private void loseScreen(int n) {
-        drawFrame("YOU LOSE. YOU REACHED LEVEL " + n);
+        drawFrame("YOU LOSE. YOU MADE IT TO LEVEL " + n);
+        StdDraw.text(40, 20, "Play Again? (Y)");
+        StdDraw.text(40, 18, "Quit (Q)");
+        StdDraw.show();
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char key = Character.toLowerCase(StdDraw.nextKeyTyped());
+                if (key == 'y') {
+                    playWithKeyboard();
+                } else if (key == 'q') {
+                    System.exit(0);
+                }
+            }
+        }
     }
 
     private void moveNPCS() {
-        for (NPC npc: enemies){
+        for (NPC npc : enemies) {
             if (npc.moveNPCS(finalWorldFrame, player1)) {
                 gameOver = true;
             }
@@ -296,86 +248,112 @@ public class Game {
         gameOver = false;
         setUpMenu();
         yOffSet = 3;
-        int level = 1;
+        level = 1;
 
         while (!gameOver) {
             if (StdDraw.hasNextKeyTyped()) {
                 char key = Character.toLowerCase(StdDraw.nextKeyTyped());
                 switch (key) {
                     case 'n':
-                        seed = processInput(chooseSeed());
+                        try {
+                            seed = processInput(chooseSeed());
+                        } catch (NumberFormatException e) {
+                            seed = processInput(chooseSeed());
+                        }
                         ter.initialize(WIDTH, HEIGHT + yOffSet, 0, -yOffSet);
                         newGame(seed, level);
                         break;
                     case 'l':
-                        ter.initialize(WIDTH, HEIGHT + yOffSet,0, -yOffSet);
+                        ter.initialize(WIDTH, HEIGHT + yOffSet, 0, -yOffSet);
                         loadWorld();
-                        loadPlayer();
-                        loadNPCS();
                         break;
                     default:
                         break;
                 }
-                ter.renderFrame(finalWorldFrame, MousePosition(), level(level));
+                ter.renderFrame(finalWorldFrame, MousePosition(), displayLevel(level), displaySpecialMoves(0));
                 play();
             }
         }
     }
 
+    private Position getRightOfPlayer() {
+        return new Position(player1.getCurrPos().getX() + 1, player1.getCurrPos().getY());
+    }
+
+    private Position getLeftOfPlayer() {
+        return new Position(player1.getCurrPos().getX() - 1, player1.getCurrPos().getY());
+    }
+
+    private Position getAbovePlayer() {
+        return new Position(player1.getCurrPos().getX(), player1.getCurrPos().getY() + 1);
+    }
+
+    private Position getBelowPlayer() {
+        return new Position(player1.getCurrPos().getX(), player1.getCurrPos().getY() - 1);
+    }
+
+    private void movePlayer(char lastKeyTyped, Position newPos) {
+        if (lastKeyTyped == 'b' && specialMoves >= 0) {
+            finalWorldFrame[newPos.getX()][newPos.getY()] = Tileset.WALL;
+        } else if (lastKeyTyped == 'e' && specialMoves >= 0) {
+            finalWorldFrame[newPos.getX()][newPos.getY()] = Tileset.FLOOR;
+        } else if (finalWorldFrame[newPos.getX()][newPos.getY()].description().equals("locked door")) {
+            newGame(generateRandomSeed(), level);
+            level++;
+            specialMoves += 2;
+        } else {
+            player1.move(finalWorldFrame, newPos);
+        }
+    }
+
     private void play() {
-        int level = 1;
+        char lastKeyTyped = ' ';
         while (!gameOver) {
-            ter.renderFrame(finalWorldFrame, MousePosition(), level(level));
+            ter.renderFrame(finalWorldFrame, MousePosition(), displayLevel(level), displaySpecialMoves(specialMoves));
             if (StdDraw.hasNextKeyTyped()) {
                 char key = Character.toLowerCase(StdDraw.nextKeyTyped());
-                moveNPCS();
                 switch (key) {
                     case ':':
-                        System.out.println("e");
                         saveWorld();
-                        savePlayer();
-                        saveNPCS();
-                        System.exit(0);
+                        break;
+                    case 'q':
+                        if (lastKeyTyped == ':') {
+                            System.exit(0);
+                        }
                         break;
                     case 'w':
-                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() + 1].description().equals("locked door")) {
-                            newGame(generateRandomSeed(), level);
-                            level++;
-                        } else {
-                            player1.moveUp(finalWorldFrame);
-                        }
+                        movePlayer(lastKeyTyped, getAbovePlayer());
                         break;
                     case 's':
-                        if (finalWorldFrame[player1.getCurrPos().getX()][player1.getCurrPos().getY() - 1].description().equals("locked door")) {
-                            newGame(generateRandomSeed(), level);
-                            level++;
-                        } else {
-                            player1.moveDown(finalWorldFrame);
-                        }
+                        movePlayer(lastKeyTyped, getBelowPlayer());
                         break;
                     case 'a':
-                        if (finalWorldFrame[player1.getCurrPos().getX() - 1][player1.getCurrPos().getY()].description().equals("locked door")) {
-                            newGame(generateRandomSeed(), level);
-                            level++;
-                        } else {
-                            player1.moveLeft(finalWorldFrame);
-                        }
+                        movePlayer(lastKeyTyped, getLeftOfPlayer());
                         break;
                     case 'd':
-                        if (finalWorldFrame[player1.getCurrPos().getX() + 1][player1.getCurrPos().getY()].description().equals("locked door")) {
-                            newGame(generateRandomSeed(), level);
-                            level++;
-                        } else {
-                            player1.moveRight(finalWorldFrame);
+                        movePlayer(lastKeyTyped, getRightOfPlayer());
+                        break;
+                    case 'b':
+                        if (specialMoves > 0) {
+                            specialMoves--;
                         }
                         break;
+                    case 'e':
+                        if (specialMoves > 0) {
+                            specialMoves -= 1;
+                        }
+                        break;
+
                     default:
                         break;
                 }
+                if (key != 'b' && key != 'e') {
+                    moveNPCS();
+                }
+                lastKeyTyped = key;
             }
         }
         loseScreen(level);
-
     }
 
     /**
@@ -400,8 +378,43 @@ public class Game {
         } else if (first == 'L' || first == 'l') {
             loadWorld();
         }
-        if (input.contains(":Q") || input.contains(":q")) {
-            saveWorld();
+        for (int i = 1; i < input.length(); i++) {
+            char key = input.charAt(i);
+            char lastKeyTyped = input.charAt(i - 1);
+            switch (key) {
+                case ':':
+                    saveWorld();
+                    break;
+                case 'q':
+                    if (lastKeyTyped == ':') {
+                        System.exit(0);
+                    }
+                    break;
+                case 'w':
+                    movePlayer(lastKeyTyped, getAbovePlayer());
+                    break;
+                case 's':
+                    movePlayer(lastKeyTyped, getBelowPlayer());
+                    break;
+                case 'a':
+                    movePlayer(lastKeyTyped, getLeftOfPlayer());
+                    break;
+                case 'd':
+                    movePlayer(lastKeyTyped, getRightOfPlayer());
+                    break;
+                case 'b':
+                    if (specialMoves > 0) {
+                        specialMoves--;
+                    }
+                    break;
+                case 'e':
+                    if (specialMoves > 0) {
+                        specialMoves -= 1;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
         return finalWorldFrame;
     }

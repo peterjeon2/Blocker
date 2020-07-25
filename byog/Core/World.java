@@ -19,11 +19,22 @@ public class World implements Serializable {
     private Position playerStartPos;
     private Position stairCase;
 
-
     public World(int w, int h, Long seed) {
         width = w;
         height = h;
         random = new Random(seed);
+    }
+
+    public TETile[][] getWorld() {
+        return world;
+    }
+
+    public Position getPlayerStartPos() {
+        return playerStartPos;
+    }
+
+    public Position getStairCase() {
+        return stairCase;
     }
 
     public void fillEmpty(TETile[][] w) {
@@ -94,21 +105,5 @@ public class World implements Serializable {
         findNeighbors();
         generateHallways(world, random);
         return world;
-    }
-
-    public TETile[][] getWorld() {
-        return world;
-    }
-
-    public Position getPlayerStartPos() {
-        return playerStartPos;
-    }
-
-    public Position getStairCase() {
-        return stairCase;
-    }
-
-    public NPC[] getNPCS() {
-        return npcs;
     }
 }

@@ -18,6 +18,7 @@ public class Player implements Serializable {
 
     /**
      * Instantiates the player.
+     *
      * @param world
      * @param startPos
      */
@@ -27,8 +28,13 @@ public class Player implements Serializable {
         world[currPos.getX()][currPos.getY()] = tile;
     }
 
+    protected void setTile(TETile t) {
+        this.tile = t;
+    }
+
     /**
      * Retrieves the player's current position.
+     *
      * @return
      */
     public Position getCurrPos() {
@@ -36,78 +42,25 @@ public class Player implements Serializable {
     }
 
     /**
-     * Moves the player up one space.
-     * @param world
-     */
-    public void moveUp(TETile[][] world) {
-        prevPos = currPos;
-        nextPos = new Position(currPos.getX(), currPos.getY() + 1);
-        if (checkNextPos(world, nextPos)) {
-            currPos = nextPos;
-            world[currPos.getX()][currPos.getY()] = tile;
-            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
-        }
-    }
-
-    /**
-     * Moves the player left one space.
-     * @param world
-     */
-    public void moveLeft(TETile[][] world) {
-        prevPos = currPos;
-        nextPos = new Position(currPos.getX() - 1, currPos.getY());
-        if (checkNextPos(world, nextPos)) {
-            currPos = nextPos;
-            world[currPos.getX()][currPos.getY()] = tile;
-            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
-        }
-    }
-
-    /**
-     * Moves the player right one space.
-     * @param world
-     */
-    public void moveRight(TETile[][] world) {
-        prevPos = currPos;
-        nextPos = new Position(currPos.getX() + 1, currPos.getY());
-        if (checkNextPos(world, nextPos)) {
-            currPos = nextPos;
-            world[currPos.getX()][currPos.getY()] = tile;
-            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
-        }
-    }
-
-    /**
-     * Moves the player down one space.
-     * @param world
-     */
-    public void moveDown(TETile[][] world) {
-        prevPos = currPos;
-        nextPos = new Position(currPos.getX(), currPos.getY() - 1);
-        if (checkNextPos(world, nextPos)) {
-            currPos = nextPos;
-            world[currPos.getX()][currPos.getY()] = tile;
-            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
-        }
-    }
-
-    /**
      * Helper funcion that returns whether a player can move to the next position.
+     *
      * @param world
      * @param p
      * @return
      */
-    public boolean checkNextPos(TETile[][] world,  Position p) {
+    public boolean checkNextPos(TETile[][] world, Position p) {
         String tileType = world[p.getX()][p.getY()].description();
         return tileType.equals("floor") || tileType.equals("locked door");
     }
 
-    /*
-    private static void movePlayer(TETile[][] world, Position prev, Position curr, Position next) {
-        curr = next;
-        world[curr.getX()][curr.getY()] = Tileset.PLAYER;
-        world[prev.getX()][prev.getY()] = Tileset.FLOOR;
-    }
 
-     */
+    public void move(TETile[][] world, Position newPosition) {
+        prevPos = currPos;
+        nextPos = newPosition;
+        if (checkNextPos(world, nextPos)) {
+            currPos = nextPos;
+            world[currPos.getX()][currPos.getY()] = tile;
+            world[prevPos.getX()][prevPos.getY()] = Tileset.FLOOR;
+        }
+    }
 }

@@ -100,7 +100,7 @@ public class TERenderer {
         StdDraw.show();
     }
 
-    public void renderFrame(TETile[][] world, String tileStr, String levelStr) {
+    public void renderFrame(TETile[][] world, String tileStr, String levelStr, String specialMoves) {
         int numXTiles = world.length;
         int numYTiles = world[0].length;
         StdDraw.clear(new Color(0, 0, 0));
@@ -115,7 +115,10 @@ public class TERenderer {
         }
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.textLeft(3, 50, tileStr);
-        StdDraw.textLeft(40, 50, levelStr);
+        StdDraw.textLeft(45, 50, levelStr);
+        StdDraw.textLeft(15, 52, specialMoves);
+        StdDraw.textLeft(15, 50, "Press B + Direction to Build a Wall");
+        StdDraw.textLeft(15, 48, "Press E + Direction to Destroy a Wall");
         StdDraw.textLeft(60, 50, "Press :Q to save and quit");
         StdDraw.show();
     }

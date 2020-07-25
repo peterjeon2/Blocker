@@ -2,8 +2,6 @@ package byog.Core;
 
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
-
-import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -11,7 +9,8 @@ import java.util.Random;
  * randomly generated rooms in the world.
  * The game class calls these methods to build out the world.
  */
-public class Room implements Serializable {
+
+public class Room {
     private int width;
     private int height;
     private Position botLeftCorn;
@@ -76,6 +75,18 @@ public class Room implements Serializable {
         uppRightCorn = new Position(botRightCorn.getX(), uppLeftCorn.getY());
     }
 
+    /* Randomly chooses square or rectangle shaped room */
+    public void makeShape(Random random) {
+        int tileNum = random.nextInt(2);
+        if (tileNum == 0) {
+            width = RandomUtils.uniform(random, 4, 12);
+            height = getWidth();
+        } else {
+            width = RandomUtils.uniform(random, 4, 12);
+            height = RandomUtils.uniform(random, 4, 12);
+        }
+    }
+
     public static Room makeRoom(TETile[][] world, Random random) {
         Room r = new Room();
         r.makeShape(random);
@@ -136,17 +147,5 @@ public class Room implements Serializable {
             }
         }
         world[getDoor().getDoorP().getX()][getDoor().getDoorP().getY()] = Tileset.FLOOR;
-    }
-
-    public void makeShape(Random random) {
-        /* Randomly chooses square or rectangle shaped room */
-        int tileNum = random.nextInt(2);
-        if (tileNum == 0) {
-            width = RandomUtils.uniform(random, 4, 12);
-            height = getWidth();
-        } else {
-            width = RandomUtils.uniform(random, 4, 12);
-            height = RandomUtils.uniform(random, 4, 12);
-        }
     }
 }
