@@ -4,7 +4,8 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -163,7 +164,7 @@ public class Game {
         StdDraw.show();
     }
 
-    private String MousePosition() {
+    private String mousePosition() {
         int x = (int) StdDraw.mouseX();
         int y = (int) StdDraw.mouseY();
         try {
@@ -270,7 +271,7 @@ public class Game {
                     default:
                         break;
                 }
-                ter.renderFrame(finalWorldFrame, MousePosition(), displayLevel(level), displaySpecialMoves(0));
+                ter.renderFrame(finalWorldFrame, mousePosition(), displayLevel(level), displaySpecialMoves(0));
                 play();
             }
         }
@@ -309,7 +310,7 @@ public class Game {
     private void play() {
         char lastKeyTyped = ' ';
         while (!gameOver) {
-            ter.renderFrame(finalWorldFrame, MousePosition(), displayLevel(level), displaySpecialMoves(specialMoves));
+            ter.renderFrame(finalWorldFrame, mousePosition(), displayLevel(level), displaySpecialMoves(specialMoves));
             if (StdDraw.hasNextKeyTyped()) {
                 char key = Character.toLowerCase(StdDraw.nextKeyTyped());
                 switch (key) {
@@ -387,7 +388,6 @@ public class Game {
                     break;
                 case 'q':
                     if (lastKeyTyped == ':') {
-                        System.exit(0);
                     }
                     break;
                 case 'w':
