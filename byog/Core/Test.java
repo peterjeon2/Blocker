@@ -9,7 +9,8 @@ public class Test {
     public static void main(String[] args) {
 
         Game game = new Game();
-        game.playWithKeyboard();
+        TETile[][] worldState = game.playWithInputString(args[0]);
+        System.out.println(TETile.toString(worldState));
 
 
 

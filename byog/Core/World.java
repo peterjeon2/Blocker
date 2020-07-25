@@ -91,7 +91,7 @@ public class World implements Serializable {
     public NPC[] generateNPCS(TETile[][] w, int level) {
         npcs = new NPC[level * 2];
         for (int i = 0; i < level * 2; i += 1) {
-            npcs[i] = new NPC(w, rooms[i +1].getDoor().getDoorP());
+            npcs[i] = new NPC(w, rooms[i + 1].getDoor().getDoorP());
         }
         stairCase = rooms[size - 1].getDoor().getDoorP();
         world[stairCase.getX()][stairCase.getY()] = Tileset.LOCKED_DOOR;

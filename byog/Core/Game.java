@@ -33,14 +33,7 @@ public class Game {
     private int level;
 
     public Game() {
-        StdDraw.setCanvasSize(WIDTH * 16, HEIGHT * 16);
-        Font font = new Font("Monaco", Font.BOLD, 30);
-        StdDraw.setFont(font);
-        StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setXscale(0, WIDTH);
-        StdDraw.setYscale(0, HEIGHT);
-        StdDraw.clear(Color.BLACK);
-        StdDraw.enableDoubleBuffering();
+
     }
 
     /**
@@ -98,7 +91,7 @@ public class Game {
             ObjectInputStream os2 = new ObjectInputStream(new FileInputStream("player.txt"));
             ObjectInputStream os3 = new ObjectInputStream(new FileInputStream("NPCs.txt"));
             ObjectInputStream os4 = new ObjectInputStream(new FileInputStream("level.txt"));
-            ObjectInputStream os5 = new ObjectInputStream(new FileInputStream("specialMoves.txt"));
+            ObjectInputStream os5 = new ObjectInputStream(new FileInputStream("specMoves.txt"));
             finalWorldFrame = (TETile[][]) os.readObject();
             player1 = (Player) os2.readObject();
             enemies = (NPC[]) os3.readObject();
@@ -134,7 +127,7 @@ public class Game {
             os3.writeObject(enemies);
             ObjectOutputStream os4 = new ObjectOutputStream(new FileOutputStream("level.txt"));
             os4.writeObject(level);
-            ObjectOutputStream os5 = new ObjectOutputStream(new FileOutputStream("specialMoves.txt"));
+            ObjectOutputStream os5 = new ObjectOutputStream(new FileOutputStream("specMoves.txt"));
             os5.writeObject(specialMoves);
             os.close();
             os2.close();
@@ -250,6 +243,14 @@ public class Game {
         setUpMenu();
         yOffSet = 3;
         level = 1;
+        StdDraw.setCanvasSize(WIDTH * 16, HEIGHT * 16);
+        Font font = new Font("Monaco", Font.BOLD, 30);
+        StdDraw.setFont(font);
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.setXscale(0, WIDTH);
+        StdDraw.setYscale(0, HEIGHT);
+        StdDraw.clear(Color.BLACK);
+        StdDraw.enableDoubleBuffering();
 
         while (!gameOver) {
             if (StdDraw.hasNextKeyTyped()) {
@@ -271,7 +272,8 @@ public class Game {
                     default:
                         break;
                 }
-                ter.renderFrame(finalWorldFrame, mousePosition(), displayLevel(level), displaySpecialMoves(0));
+                ter.renderFrame(finalWorldFrame, mousePosition(),
+                        displayLevel(level), displaySpecialMoves(0));
                 play();
             }
         }
@@ -298,7 +300,8 @@ public class Game {
             finalWorldFrame[newPos.getX()][newPos.getY()] = Tileset.WALL;
         } else if (lastKeyTyped == 'e' && specialMoves >= 0) {
             finalWorldFrame[newPos.getX()][newPos.getY()] = Tileset.FLOOR;
-        } else if (finalWorldFrame[newPos.getX()][newPos.getY()].description().equals("locked door")) {
+        } else if (finalWorldFrame[newPos.getX()][newPos.getY()].
+                description().equals("locked door")) {
             newGame(generateRandomSeed(), level);
             level++;
             specialMoves += 2;
@@ -310,7 +313,8 @@ public class Game {
     private void play() {
         char lastKeyTyped = ' ';
         while (!gameOver) {
-            ter.renderFrame(finalWorldFrame, mousePosition(), displayLevel(level), displaySpecialMoves(specialMoves));
+            ter.renderFrame(finalWorldFrame, mousePosition(), displayLevel(level),
+                    displaySpecialMoves(specialMoves));
             if (StdDraw.hasNextKeyTyped()) {
                 char key = Character.toLowerCase(StdDraw.nextKeyTyped());
                 switch (key) {
@@ -384,10 +388,8 @@ public class Game {
             char lastKeyTyped = input.charAt(i - 1);
             switch (key) {
                 case ':':
-                    saveWorld();
-                    break;
-                case 'q':
                     if (lastKeyTyped == ':') {
+                        saveWorld();
                     }
                     break;
                 case 'w':

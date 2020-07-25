@@ -5,7 +5,7 @@ import byog.TileEngine.Tileset;
 
 import java.io.Serializable;
 
-public class NPC implements Serializable{
+public class NPC implements Serializable {
     private static final long serialVersionUID = 123L;
     private Position prevPos;
     private Position currPos;
@@ -37,7 +37,7 @@ public class NPC implements Serializable{
     public String calcPath(Position npcPos, Position playerPos) {
         if (playerPos.getX() - npcPos.getX() > 0) {
             return "right";
-        } else if (playerPos.getX() - npcPos.getX() < 0){
+        } else if (playerPos.getX() - npcPos.getX() < 0) {
             return "left";
         } else if (playerPos.getY() - npcPos.getY() > 0) {
             return "up";
