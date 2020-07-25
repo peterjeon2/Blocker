@@ -413,7 +413,7 @@ public class Game {
      * Prompts a user to enter a seed.
      */
     private String chooseSeed() {
-        String seed = "";
+        String userSeed = "";
         char key = ' ';
         StdDraw.clear(Color.BLACK);
         StdDraw.text(WIDTH / 2, 40, "Enter a Random Seed. Press S to start the game.");
@@ -422,13 +422,13 @@ public class Game {
         while (key != 's' || key != 's') {
             if (StdDraw.hasNextKeyTyped()) {
                 key = StdDraw.nextKeyTyped();
-                seed += String.valueOf(key);
+                userSeed += String.valueOf(key);
                 StdDraw.clear(Color.BLACK);
-                StdDraw.text(WIDTH / 2, 25, seed);
+                StdDraw.text(WIDTH / 2, 25, userSeed);
                 StdDraw.show();
             }
         }
-        return seed;
+        return userSeed;
     }
 
     /**

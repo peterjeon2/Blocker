@@ -21,14 +21,15 @@ public class Hallway {
         drawVerticalHallway(world, conPos, room.getDoor().getDoorP());
     }
 
-    private static void drawHorizontalHallway(TETile[][] world, Position conPos, Position startPos) {
-        int width = Math.abs(conPos.getX() - startPos.getX());
+    private static void drawHorizontalHallway(TETile[][] world, Position connectPos
+            , Position startPos) {
+        int width = Math.abs(connectPos.getX() - startPos.getX());
         int height = 3;
         Position p;
-        if (conPos.getX() > startPos.getX()) {
+        if (connectPos.getX() > startPos.getX()) {
             p = new Position(startPos.getX(), startPos.getY() - 1);
         } else {
-            p = new Position(conPos.getX(), conPos.getY() - 1);
+            p = new Position(connectPos.getX(), connectPos.getY() - 1);
         }
         for (int x = 0; x < width; x += 1) {
             int xCoord = p.getX() + x;
@@ -47,14 +48,15 @@ public class Hallway {
         }
     }
 
-    private static void drawVerticalHallway(TETile[][] world, Position conPos, Position startPos) {
-        int height = Math.abs(conPos.getY() - startPos.getY());
+    private static void drawVerticalHallway(TETile[][] world, Position connectPos,
+                                            Position startPos) {
+        int height = Math.abs(connectPos.getY() - startPos.getY());
         int width = 3;
         Position p;
-        if (conPos.getY() > startPos.getY()) {
+        if (connectPos.getY() > startPos.getY()) {
             p = new Position(startPos.getX() - 1, startPos.getY());
         } else {
-            p = new Position(conPos.getX() - 1, conPos.getY());
+            p = new Position(connectPos.getX() - 1, connectPos.getY());
         }
         for (int x = 0; x < width; x += 1) {
             int xCoord = p.getX() + x;
