@@ -9,7 +9,7 @@ public class Test {
     public static void main(String[] args) {
 
         Game game = new Game();
-        TETile[][] worldState = game.playWithInputString(args[0]);
+        TETile[][] worldState = game.playWithInputString("N3242:Q");
         System.out.println(TETile.toString(worldState));
 
 

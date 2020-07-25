@@ -72,7 +72,6 @@ public class Game {
      * @param seed
      */
     public void newGame(Long seed, int level) {
-        StdDraw.clear();
         System.out.println(seed);
         newWorld = new World(WIDTH, HEIGHT, seed);
         finalWorldFrame = newWorld.generateWorld(ter, seed);
