@@ -21,8 +21,8 @@ public class Hallway {
         drawVerticalHallway(world, conPos, room.getDoor().getDoorP());
     }
 
-    private static void drawHorizontalHallway(TETile[][] world, Position connectPos
-            , Position startPos) {
+    private static void drawHorizontalHallway(TETile[][] world, Position connectPos,
+                                              Position startPos) {
         int width = Math.abs(connectPos.getX() - startPos.getX());
         int height = 3;
         Position p;
