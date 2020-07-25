@@ -120,11 +120,14 @@ public class TERenderer {
         }
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.textLeft(3, 50, tileStr);
-        StdDraw.textLeft(45, 50, levelStr);
-        StdDraw.textLeft(15, 52, specialMove);
-        StdDraw.textLeft(15, 50, "Press B + Direction to Build a Wall");
-        StdDraw.textLeft(15, 48, "Press E + Direction to Destroy a Wall");
-        StdDraw.textLeft(60, 50, "Press :Q to save and quit");
+        StdDraw.setFont(new Font("Monaco", Font.BOLD, 25));
+        StdDraw.textLeft(3, 52, levelStr);
+        Font font = new Font("Monaco", Font.BOLD, TILE_SIZE - 2);
+        StdDraw.setFont(font);
+        StdDraw.textLeft(35, 50, specialMove);
+        StdDraw.textLeft(60, 50, "Press B + Direction to build a Wall");
+        StdDraw.textLeft(60, 49, "Press E + Direction to destroy a Wall");
+        StdDraw.textLeft(60, 48, "Press :Q to Save and Quit");
         StdDraw.show();
     }
 }

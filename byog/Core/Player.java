@@ -14,33 +14,18 @@ public class Player implements Serializable {
     private Position nextPos;
     private TETile tile;
 
-    /**
-     * Instantiates the player.
-     *
-     * @param world
-     * @param startPos
-     */
     public Player(TETile[][] world, Position startPos) {
         currPos = startPos;
         tile = Tileset.PLAYER;
         world[currPos.getX()][currPos.getY()] = tile;
     }
 
-    protected void setTile(TETile t) {
-        this.tile = t;
-    }
-
-    /**
-     * Retrieves the player's current position.
-     *
-     * @return
-     */
     public Position getCurrPos() {
         return currPos;
     }
 
     /**
-     * Helper funcion that returns whether a player can move to the next position.
+     * Checks whether a player can physically move to the next position.
      *
      * @param world
      * @param p
@@ -51,7 +36,11 @@ public class Player implements Serializable {
         return tileType.equals("floor") || tileType.equals("locked door");
     }
 
-
+    /**
+     * Moves the player to the next position.
+     * @param world
+     * @param newPosition
+     */
     public void move(TETile[][] world, Position newPosition) {
         prevPos = currPos;
         nextPos = newPosition;

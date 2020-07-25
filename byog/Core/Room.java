@@ -28,6 +28,13 @@ public class Room {
         corners = new Position[4];
     }
 
+    /**
+     * The door is a randomly chosen spot in the middle of a room.
+     * It serves many purposes:
+     * 1. As connecting points used to draw hallways between rooms.
+     * 2. Spawn positions for the player and NPCs
+     * 3. The location of the staircase in each level.
+     */
     public class Door {
         private Position doorP;
         public Door(Position p) {
@@ -61,22 +68,26 @@ public class Room {
         return height;
     }
 
-    /* Creates a door in a room. A door is used as a starting
-        position to connect to another room's door. */
-    public void setDoor(Random random) {
+    public void createDoor(Random random) {
         int x0 = getBotLeftCorn().getX() + RandomUtils.uniform(random, 1, width - 1);
         int y0 = getBotLeftCorn().getY() + RandomUtils.uniform(random, 1, height - 1);
         door = new Door(new Position(x0, y0));
     }
 
-    public void setCorners() {
+    /**
+     * Sets up the corners of a room using the bottom left corner as a reference point.
+     */
+    private void setCorners() {
         botRightCorn = new Position(botLeftCorn.getX() + width - 1, botLeftCorn.getY());
         uppLeftCorn = new Position(botLeftCorn.getX(), botLeftCorn.getY() + height - 1);
         uppRightCorn = new Position(botRightCorn.getX(), uppLeftCorn.getY());
     }
 
-    /* Randomly chooses square or rectangle shaped room */
-    public void makeShape(Random random) {
+    /**
+     * Randomly determines whether a room is square or rectangle shaped.
+     * @param random
+     */
+    private void makeShape(Random random) {
         int tileNum = random.nextInt(2);
         if (tileNum == 0) {
             width = RandomUtils.uniform(random, 4, 12);
@@ -87,6 +98,12 @@ public class Room {
         }
     }
 
+    /**
+     * Creates a randomly generated room.
+     * @param world
+     * @param random
+     * @return
+     */
     public static Room makeRoom(TETile[][] world, Random random) {
         Room r = new Room();
         r.makeShape(random);
@@ -94,23 +111,31 @@ public class Room {
                 RandomUtils.uniform(random, 45));
         r.setCorners();
         r.corners = new Position[] {r.botLeftCorn, r.botRightCorn, r.uppLeftCorn, r.uppRightCorn};
-        r.setDoor(random);
+        r.createDoor(random);
         Position.checkOverlap(world, r);
         return r;
     }
 
+    /**
+     * Finds and stores neighboring rooms in an array list.
+     * @param room
+     */
     public void addNeighbor(Room room) {
-        /* Finds and stores neighboring rooms. */
         while (neighborCount < neighbors.length) {
             neighbors[neighborCount] = room;
             neighborCount++;
         }
     }
 
+    /**
+     * Connects a room and a neighboring room by using the helper function.
+     * A second hallway between two rooms will randomly be created to
+     * make the world easier to navigate.
+     * @param world
+     * @param neighborRoom
+     * @param random
+     */
     public void connectRooms(TETile[][] world, Room neighborRoom, Random random) {
-        /* Creates a connection between a room and a neighboring room.
-        * It can also create a second connection randomly
-        */
         connectRoomHelper(world, this, neighborRoom);
         int n = RandomUtils.uniform(random, 2);
         if (n == 1) {
@@ -118,8 +143,13 @@ public class Room {
         }
     }
 
-    public void connectRoomHelper(TETile[][] world, Room room, Room neighborRoom) {
-        /* This function draws a hallway between a room and a neighboring room. */
+    /**
+     * This function draws a hallway between a room and a neighboring room.
+     * @param world
+     * @param room
+     * @param neighborRoom
+     */
+    private void connectRoomHelper(TETile[][] world, Room room, Room neighborRoom) {
         int posX = room.getDoor().getDoorP().getX();
         int posY = neighborRoom.getDoor().getDoorP().getY();
         if (room.getDoor().getDoorP().getY() == neighborRoom.getDoor().getDoorP().getY()) {
@@ -146,6 +176,6 @@ public class Room {
                 }
             }
         }
-        world[getDoor().getDoorP().getX()][getDoor().getDoorP().getY()] = Tileset.FLOOR;
     }
+
 }

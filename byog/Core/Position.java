@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 
 /**
-* Class for determining the position of a tile on the grid
+* Class used to mark the coordinates of a tile on the grid.
  */
 public class Position implements Serializable {
     private static final long serialVersionUID = 123L;

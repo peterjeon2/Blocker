@@ -7,6 +7,9 @@ import byog.TileEngine.Tileset;
 import java.io.Serializable;
 import java.util.Random;
 
+/**
+ * The World class creates a randomly generated World.
+ */
 public class World implements Serializable {
     private static final long serialVersionUID = 123123123123123L;
     private int width;
@@ -33,11 +36,42 @@ public class World implements Serializable {
         return playerStartPos;
     }
 
-    public Position getStairCase() {
-        return stairCase;
+    /**
+     * Populates the world with randomly generated rooms and hallways.
+     * @param ter
+     * @param seed
+     * @return
+     */
+    public TETile[][] generateWorld(TERenderer ter, Long seed) {
+        world = new TETile[width][height];
+        fillEmpty(world);
+        generateRooms(world, random);
+        findNeighbors();
+        generateHallways(world, random);
+        createStairCase();
+        return world;
     }
 
-    public void fillEmpty(TETile[][] w) {
+    /**
+     * Generates NPCS in the world. The number of NPCs is based off the current
+     * level the player is on.
+     * @param w
+     * @param level
+     * @return
+     */
+    public NPC[] generateNPCS(TETile[][] w, int level) {
+        npcs = new NPC[level * 2];
+        for (int i = 0; i < level * 2; i += 1) {
+            npcs[i] = new NPC(w, rooms[i + 1].getDoor().getDoorP());
+        }
+        return npcs;
+    }
+
+    /**
+     * Fills the empty grid with blank tiles.
+     * @param w
+     */
+    private void fillEmpty(TETile[][] w) {
         for (int x = 0; x < width; x += 1) {
             for (int y = 0; y < height; y += 1) {
                 w[x][y] = Tileset.NOTHING;
@@ -45,7 +79,12 @@ public class World implements Serializable {
         }
     }
 
-    public void generateRooms(TETile[][] w, Random r) {
+    /**
+     * Creates and draws a random number of rooms in the world.
+     * @param w
+     * @param r
+     */
+    private void generateRooms(TETile[][] w, Random r) {
         size = RandomUtils.uniform(r, 15, 25);
         rooms = new Room[size];
         int numRooms = 0;
@@ -67,7 +106,10 @@ public class World implements Serializable {
         playerStartPos = rooms[0].getDoor().getDoorP();
     }
 
-    public void findNeighbors() {
+    /**
+     * Determines the nearest neighboring rooms for each room in the world.
+     */
+    private void findNeighbors() {
         for (Room room : rooms) {
             for (Room room2 : rooms) {
                 Position pos1 = room.getDoor().getDoorP();
@@ -80,7 +122,12 @@ public class World implements Serializable {
         }
     }
 
-    public void generateHallways(TETile[][] w, Random r) {
+    /**
+     * Draws hallways between a room and  its neighbors.
+     * @param w
+     * @param r
+     */
+    private void generateHallways(TETile[][] w, Random r) {
         for (Room room : rooms) {
             for (Room neighborRoom : room.getNeighbors()) {
                 room.connectRooms(w, neighborRoom, r);
@@ -88,22 +135,11 @@ public class World implements Serializable {
         }
     }
 
-    public NPC[] generateNPCS(TETile[][] w, int level) {
-        npcs = new NPC[level * 2];
-        for (int i = 0; i < level * 2; i += 1) {
-            npcs[i] = new NPC(w, rooms[i + 1].getDoor().getDoorP());
-        }
+    /** Creates a staircase that can be used to reach the
+     * next level of the game.
+     */
+    private void createStairCase() {
         stairCase = rooms[size - 1].getDoor().getDoorP();
         world[stairCase.getX()][stairCase.getY()] = Tileset.LOCKED_DOOR;
-        return npcs;
-    }
-
-    public TETile[][] generateWorld(TERenderer ter, Long seed) {
-        world = new TETile[width][height];
-        fillEmpty(world);
-        generateRooms(world, random);
-        findNeighbors();
-        generateHallways(world, random);
-        return world;
     }
 }
