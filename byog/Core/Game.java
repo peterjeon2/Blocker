@@ -383,10 +383,10 @@ public class Game {
             loadWorld();
         }
         for (int i = 1; i < input.length(); i++) {
-            char key = input.charAt(i);
-            char lastKeyTyped = input.charAt(i - 1);
+            char key = Character.toLowerCase(input.charAt(i));
+            char lastKeyTyped = Character.toLowerCase(input.charAt(i - 1));
             switch (key) {
-                case ':':
+                case 'q':
                     if (lastKeyTyped == ':') {
                         saveWorld();
                     }

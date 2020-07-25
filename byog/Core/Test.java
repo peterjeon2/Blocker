@@ -9,7 +9,10 @@ public class Test {
     public static void main(String[] args) {
 
         Game game = new Game();
-        TETile[][] worldState = game.playWithInputString("N3242:Q");
+        TETile[][] worldState = game.playWithInputString("Ld:Q");
+        TERenderer te = new TERenderer();
+        te.initialize(80, 50);
+        te.renderFrame(worldState);
         System.out.println(TETile.toString(worldState));
 
 
