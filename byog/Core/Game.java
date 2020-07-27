@@ -104,37 +104,7 @@ public class Game {
         for (int i = 1; i < input.length(); i++) {
             char key = Character.toLowerCase(input.charAt(i));
             char lastKeyTyped = Character.toLowerCase(input.charAt(i - 1));
-            switch (key) {
-                case 'q':
-                    if (lastKeyTyped == ':') {
-                        saveWorld();
-                    }
-                    break;
-                case 'w':
-                    movePlayer(lastKeyTyped, getAbovePlayer());
-                    break;
-                case 's':
-                    movePlayer(lastKeyTyped, getBelowPlayer());
-                    break;
-                case 'a':
-                    movePlayer(lastKeyTyped, getLeftOfPlayer());
-                    break;
-                case 'd':
-                    movePlayer(lastKeyTyped, getRightOfPlayer());
-                    break;
-                case 'b':
-                    if (specialMoves > 0) {
-                        specialMoves--;
-                    }
-                    break;
-                case 'e':
-                    if (specialMoves > 0) {
-                        specialMoves -= 1;
-                    }
-                    break;
-                default:
-                    break;
-            }
+            movementKeys(key, lastKeyTyped);
         }
         return finalWorldFrame;
     }
@@ -187,41 +157,7 @@ public class Game {
                     displaySpecialMoves(specialMoves));
             if (StdDraw.hasNextKeyTyped()) {
                 char key = Character.toLowerCase(StdDraw.nextKeyTyped());
-                switch (key) {
-                    case ':':
-                        saveWorld();
-                        break;
-                    case 'q':
-                        if (lastKeyTyped == ':') {
-                            System.exit(0);
-                        }
-                        break;
-                    case 'w':
-                        movePlayer(lastKeyTyped, getAbovePlayer());
-                        break;
-                    case 's':
-                        movePlayer(lastKeyTyped, getBelowPlayer());
-                        break;
-                    case 'a':
-                        movePlayer(lastKeyTyped, getLeftOfPlayer());
-                        break;
-                    case 'd':
-                        movePlayer(lastKeyTyped, getRightOfPlayer());
-                        break;
-                    case 'b':
-                        if (specialMoves > 0) {
-                            specialMoves--;
-                        }
-                        break;
-                    case 'e':
-                        if (specialMoves > 0) {
-                            specialMoves -= 1;
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
+                movementKeys(key, lastKeyTyped);
                 if (key != 'b' && key != 'e') {
                     moveNPCS();
                 }
@@ -229,6 +165,49 @@ public class Game {
             }
         }
         loseScreen(level);
+    }
+
+    /**
+     * Helper function that process player keyboard inputs,
+     * such as movements and special commands.
+     * @param key
+     * @param lastKeyTyped
+     */
+    private void movementKeys(char key, char lastKeyTyped) {
+        switch (key) {
+            case ':':
+                saveWorld();
+                break;
+            case 'q':
+                if (lastKeyTyped == ':') {
+                    System.exit(0);
+                }
+                break;
+            case 'w':
+                movePlayer(lastKeyTyped, getAbovePlayer());
+                break;
+            case 's':
+                movePlayer(lastKeyTyped, getBelowPlayer());
+                break;
+            case 'a':
+                movePlayer(lastKeyTyped, getLeftOfPlayer());
+                break;
+            case 'd':
+                movePlayer(lastKeyTyped, getRightOfPlayer());
+                break;
+            case 'b':
+                if (specialMoves > 0) {
+                    specialMoves--;
+                }
+                break;
+            case 'e':
+                if (specialMoves > 0) {
+                    specialMoves -= 1;
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /**
