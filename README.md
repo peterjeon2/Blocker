@@ -18,14 +18,13 @@ every class was written by me.
 # Game Features
 
 Blocker is a high-score based game in which the player must navigate a maze-like cavern
-and get to a portal to reach the next level of the game while avoiding being caught by 
-ghosts. More ghosts spawn as the level increases. Each level, the player gains more special 
-moves, which give them the ability to create or destroy a wall. The game ends when the player 
-is caught by a ghost.
+and find the portal to reach the next level of the game.
+Each level, the player gains 2 special moves, which allows them to create or break down a wall. 
+The game ends when the player is caught by a ghost.
 
-In this project, I created a simple algorithm to randomly generate a new set of rooms and hallways
-based off of a user input. I utilized Serialization to allow the player to save and load games,
-and also implemented a simple algorithm that makes the enemy ghosts track the player's movements.
+I created a simple algorithm that randomly generates a new set of rooms and hallways
+for each level. I utilized Serialization to allow the player to save and load games
+and also implemented an algorithm that makes the enemy ghosts track the player's movements.
 
 # Deployment Instructions 
 You will need to import the StdDraw library from Princeton. Then, run the Test class to start 
