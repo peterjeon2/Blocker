@@ -31,5 +31,3 @@ and also implemented a simple algorithm that makes the enemy ghosts track the pl
 # Deployment Instructions 
 You will need to import the StdDraw library from Princeton. Then, run the Test class to start 
 the game.
-
-![image](file:///Users/peterjeon/Desktop/Screen%20Shot%202020-08-16%20at%2012.52.20%20AM.png)
