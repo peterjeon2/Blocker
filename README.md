@@ -1,9 +1,8 @@
 # Blocker
 
 As an aspiring self- taught programmer, I was fortunate enough to come across 
-CS61B - Data Structures, taught by Josh Hug at U.C. Berkeley. In this course,
-I learned about many different data structures and algorithms. This project was 
-the most challenging and rewarding part of the course. It was orriginally intended 
+CS61B - Data Structures, taught by Josh Hug at U.C. Berkeley. I learned about many different data structures and algorithms. This project was 
+the most challenging and rewarding aspect of the course. It was originally intended 
 to be a group project, but I had the awesome opportunity to design and implement 
 the project on my own.
 
